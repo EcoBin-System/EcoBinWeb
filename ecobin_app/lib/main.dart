@@ -1,6 +1,10 @@
+import 'package:ecobin_app/user_management/models/UserModel.dart';
+import 'package:ecobin_app/user_management/screens/wrapper.dart';
+import 'package:ecobin_app/user_management/services/auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,20 +22,25 @@ Future<void> main() async {
     await Firebase.initializeApp();
   }
 
-  runApp(const MainApp());
+  runApp(const MyApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
-    );
+    return StreamProvider<UserModel?>.value(
+        initialData: UserModel(uid: ""),
+        value: AuthServices().user,
+        child: const MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Wrapper(),
+          initialRoute: '/',
+          routes: {
+            // '/login': (context) => LoginPage(),
+            // other routes
+          },
+        ));
   }
 }
