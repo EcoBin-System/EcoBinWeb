@@ -2,6 +2,7 @@ import 'package:ecobin_app/pages/garbage_pickup_form.dart';
 import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:ecobin_app/user_management/screens/home/profile.dart';
 import 'package:ecobin_app/user_management/services/auth.dart';
+import 'package:ecobin_app/pages/monitor_bin.dart';
 import 'package:flutter/material.dart';
 import 'package:ecobin_app/pages/goals.dart';
 
@@ -75,6 +76,19 @@ class _HomeState extends State<Home> {
                   },
                   child: const Text("Go to Profile"),
                 ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Navigate to the monitor bin page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MonitorBin()),
+                    );
+                  },
+                  child: const Text("Go to Monitor bin"),
+
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
