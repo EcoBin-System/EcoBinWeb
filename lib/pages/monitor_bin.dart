@@ -33,7 +33,7 @@ Stream<QuerySnapshot> _getBinStream() {
   void _showUpdateDialog(String binId, String currentName, String currentType, String currentHeight,
       String currentAddress) {
     final TextEditingController nameController =
-        TextEditingController(text: currentType);
+        TextEditingController(text: currentName);
     final TextEditingController binTypeController =
         TextEditingController(text: currentType);
     final TextEditingController binHeightController =
@@ -56,14 +56,14 @@ Stream<QuerySnapshot> _getBinStream() {
                   controller: nameController,
                   decoration: const InputDecoration(
                       labelText:
-                          'Bin Lable :'),
+                          'Bin Label :'),
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: binTypeController,
                   decoration: const InputDecoration(
                       labelText:
-                          'Bin Type (General, Organic, Recycle, Other) :'),
+                          'Bin Type (Plastic, Organic, Recyclable, Other) :'),
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -89,6 +89,7 @@ Stream<QuerySnapshot> _getBinStream() {
               onPressed: () {
                 _databaseService.updateBinDetails(
                   binId: binId,
+                  name: nameController.text,
                   binType: binTypeController.text,
                   binHeight: binHeightController.text,
                   address: addressController.text,

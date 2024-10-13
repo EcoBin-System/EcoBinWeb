@@ -88,12 +88,14 @@ class DatabaseService {
   // Method to update bin details
   Future<void> updateBinDetails({
     required String binId,
+    required String name,
     required String binType,
     required String binHeight,
     required String address,
   }) async {
     try {
       await _firestore.collection('bins').doc(binId).update({
+        'name': name,
         'binType': binType,
         'binHeight': binHeight,
         'address': address,

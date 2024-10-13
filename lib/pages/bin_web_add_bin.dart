@@ -117,7 +117,7 @@ class _BinWebAddbinState extends State<BinWebAddbin> {
                       padding: const EdgeInsets.symmetric(horizontal: 40.0),
                       child: Column(
                         children: [
-                          _buildTextField('Bin Lable :', nameController),
+                          _buildTextField('Bin Label :', nameController),
                           const SizedBox(height: 30),
                           _buildTextField('Address :', addressController),
                           const SizedBox(height: 30),
@@ -186,9 +186,9 @@ class _BinWebAddbinState extends State<BinWebAddbin> {
           items: const [
             DropdownMenuItem(
                 value: 'Select Bin Type', child: Text('Select Bin Type')),
-            DropdownMenuItem(value: 'General', child: Text('General')),
+            DropdownMenuItem(value: 'Plastic', child: Text('Plastic')),
             DropdownMenuItem(value: 'Organic', child: Text('Organic')),
-            DropdownMenuItem(value: 'Recycle', child: Text('Recycle')),
+            DropdownMenuItem(value: 'Recyclable', child: Text('Recyclable')),
             DropdownMenuItem(value: 'Other', child: Text('Other')),
           ],
           onChanged: (value) {
