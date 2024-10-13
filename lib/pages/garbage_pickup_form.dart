@@ -1,3 +1,4 @@
+import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +6,7 @@ import '../models/pickup_request.dart';
 import '../widgets/date_picker.dart';
 import '../widgets/time_picker.dart';
 import '../widgets/payment_method_radio.dart';
+import 'package:logger/logger.dart';
 
 class GarbagePickupFormPage extends StatefulWidget {
   @override
@@ -15,18 +17,15 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
   final _formKey = GlobalKey<FormState>();
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-
+  final Logger _logger = Logger();
   DateTime? _pickupDate;
   TimeOfDay? _pickupTime;
   final TextEditingController _totalPaymentController = TextEditingController();
   String _paymentMethod = '';
-
   final List<String> _paymentMethods = ['Credit Card'];
-
-  final List<Map<String, dynamic>> _garbageBinDetails = [
+  List<Map<String, dynamic>> _garbageBinDetails = [
     {'type': '', 'percentage': ''}
   ];
-
   final List<String> _allGarbageTypes = [
     'Organic',
     'Plastic',
@@ -38,6 +37,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
   void initState() {
     super.initState();
     _calculateTotalPayment();
+    _logger.i('Initialized GarbagePickupFormPage');
   }
 
   @override
@@ -49,169 +49,66 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Garbage Pickup Schedule'),
-        backgroundColor: Colors.green,
-        elevation: 0,
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.green.shade100, Colors.white],
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Schedule Pickup',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          DatePicker(
-                            selectedDate: _pickupDate,
-                            onDateSelected: (date) =>
-                                setState(() => _pickupDate = date),
-                          ),
-                          SizedBox(height: 16),
-                          TimePicker(
-                            selectedTime: _pickupTime,
-                            onTimeSelected: (time) =>
-                                setState(() => _pickupTime = time),
-                          ),
-                        ],
-                      ),
-                    ),
+      appBar: AppBar(title: const Text('Garbage Pickup Schedule Form')),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DatePicker(
+                  selectedDate: _pickupDate,
+                  onDateSelected: (date) {
+                    setState(() => _pickupDate = date);
+                    _logger.i('Pickup date selected: $date');
+                  },
+                ),
+                SizedBox(height: 16),
+                TimePicker(
+                  selectedTime: _pickupTime,
+                  onTimeSelected: (time) {
+                    setState(() => _pickupTime = time);
+                    _logger.i('Pickup time selected: $time');
+                  },
+                ),
+                SizedBox(height: 16),
+                Text('Garbage Bin Details',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                SizedBox(height: 8),
+                ..._buildGarbageBinDetailsFields(),
+                SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: _addGarbageBinDetail,
+                  child: Text('Add Garbage Bin Detail'),
+                ),
+                SizedBox(height: 16),
+                TextFormField(
+                  controller: _totalPaymentController,
+                  decoration: InputDecoration(
+                    labelText: 'Total Payment',
                   ),
-                  SizedBox(height: 24),
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Garbage Bin Details',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          ..._buildGarbageBinDetailsFields(),
-                          SizedBox(height: 16),
-                          Center(
-                            child: ElevatedButton.icon(
-                              onPressed: _addGarbageBinDetail,
-                              icon: Icon(Icons.add),
-                              label: Text('Add Bin Detail'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  readOnly: true,
+                ),
+                SizedBox(height: 16),
+                PaymentMethodRadio(
+                  paymentMethods: _paymentMethods,
+                  selectedMethod: _paymentMethod,
+                  onMethodSelected: (method) {
+                    setState(() => _paymentMethod = method);
+                    _logger.i('Payment method selected: $method');
+                  },
+                ),
+                SizedBox(height: 24),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: _submitForm,
+                    child: Text('Submit Request'),
                   ),
-                  SizedBox(height: 24),
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Payment Details',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          TextFormField(
-                            controller: _totalPaymentController,
-                            decoration: InputDecoration(
-                              labelText: 'Total Payment',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              prefixIcon:
-                                  Icon(Icons.attach_money, color: Colors.green),
-                            ),
-                            readOnly: true,
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 16),
-                          PaymentMethodRadio(
-                            paymentMethods: _paymentMethods,
-                            selectedMethod: _paymentMethod,
-                            onMethodSelected: (method) =>
-                                setState(() => _paymentMethod = method),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                        child: Text(
-                          'Submit Request',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -224,13 +121,11 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
       int idx = entry.key;
       var detail = entry.value;
       List<String> availableTypes = _getAvailableGarbageTypes(idx);
-
       // Ensure the current value is in the available types
       String currentValue = detail['type'];
       if (currentValue.isNotEmpty && !availableTypes.contains(currentValue)) {
         availableTypes.add(currentValue);
       }
-
       return Row(
         children: [
           Expanded(
@@ -246,6 +141,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
               onChanged: (String? newValue) {
                 setState(() {
                   _garbageBinDetails[idx]['type'] = newValue ?? '';
+                  _logger.i('Selected type for bin $idx: ${newValue ?? ''}');
                 });
               },
               validator: (value) {
@@ -266,6 +162,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
                 setState(() {
                   _garbageBinDetails[idx]['percentage'] = value;
                   _calculateTotalPayment();
+                  _logger.i('Updated percentage for bin $idx: $value');
                 });
               },
               validator: (value) {
@@ -282,7 +179,10 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
           ),
           IconButton(
             icon: Icon(Icons.delete),
-            onPressed: () => _removeGarbageBinDetail(idx),
+            onPressed: () {
+              _removeGarbageBinDetail(idx);
+              _logger.i('Removed bin detail at index $idx');
+            },
           ),
         ],
       );
@@ -297,7 +197,6 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
             entry.key != currentIndex && entry.value['type'].isNotEmpty)
         .map((entry) => entry.value['type'] as String)
         .toList();
-
     return _allGarbageTypes
         .where((type) => !selectedTypes.contains(type))
         .toList();
@@ -306,6 +205,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
   void _addGarbageBinDetail() {
     setState(() {
       _garbageBinDetails.add({'type': '', 'percentage': ''});
+      _logger.i('Added new garbage bin detail');
     });
   }
 
@@ -313,6 +213,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     setState(() {
       _garbageBinDetails.removeAt(index);
       _calculateTotalPayment();
+      _logger.i('Removed garbage bin detail at index: $index');
     });
   }
 
@@ -323,6 +224,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
       totalPayment += (percentage / 100) * 50;
     }
     _totalPaymentController.text = totalPayment.toStringAsFixed(2);
+    _logger.i('Calculated total payment: $totalPayment');
   }
 
   void _submitForm() async {
@@ -332,18 +234,17 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
         if (currentUser != null) {
           DocumentSnapshot userDoc =
               await _firestore.collection('users').doc(currentUser.uid).get();
-
           if (!userDoc.exists) {
+            _logger
+                .e('User document does not exist for UID: ${currentUser.uid}');
             throw Exception('User document does not exist');
           }
-
           Map<String, dynamic> userData =
               userDoc.data() as Map<String, dynamic>;
-
           if (_pickupDate == null || _pickupTime == null) {
+            _logger.e('Pickup date or time is not selected');
             throw Exception('Pickup date or time is not selected');
           }
-
           PickupRequest request = PickupRequest(
             userId: currentUser.uid,
             userName: userData['name'],
@@ -357,21 +258,30 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
             paymentMethod: _paymentMethod,
             createdAt: DateTime.now(),
           );
-
           await _firestore.collection('pickupRequests').add(request.toMap());
-
+          _logger.i('Pickup request submitted successfully: $request');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Pickup request submitted successfully!')),
           );
+
+          // Navigate to UserPickupRequestsPage after successful submission
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => UserPickupRequestsPage(),
+            ),
+          );
         } else {
+          _logger.e('No authenticated user found');
           throw Exception('No authenticated user found');
         }
       } catch (e) {
-        print('Error submitting form: $e');
+        _logger.e('Error submitting form: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(content: Text('Failed to submit request: $e')),
         );
       }
+    } else {
+      _logger.w('Form validation failed');
     }
   }
 }

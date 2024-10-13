@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/pickup_request.dart';
 import '../widgets/date_picker.dart';
 import '../widgets/time_picker.dart';
+import 'package:logger/logger.dart'; // Import logger package
 
 class UpdatePickupRequestPage extends StatefulWidget {
   final PickupRequest request;
@@ -19,6 +20,7 @@ class _UpdatePickupRequestPageState extends State<UpdatePickupRequestPage> {
   final _formKey = GlobalKey<FormState>();
   late DateTime _pickupDate;
   late TimeOfDay _pickupTime;
+  final Logger _logger = Logger(); // Create a logger instance
 
   @override
   void initState() {
@@ -48,6 +50,9 @@ class _UpdatePickupRequestPageState extends State<UpdatePickupRequestPage> {
           createdAt: widget.request.createdAt,
         );
 
+        // Logging the update request details
+        _logger.i('Updating pickup request: ${updatedRequest.id}');
+
         await FirebaseFirestore.instance
             .collection('pickupRequests')
             .doc(widget.request.id)
@@ -57,15 +62,21 @@ class _UpdatePickupRequestPageState extends State<UpdatePickupRequestPage> {
               '${_pickupTime.hour}:${_pickupTime.minute.toString().padLeft(2, '0')}',
         });
 
+        _logger.i(
+            'Pickup date and time updated successfully for request: ${widget.request.id}');
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Pickup date and time updated successfully')),
         );
         Navigator.pop(context);
       } catch (e) {
+        _logger.e('Error updating request: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating request: $e')),
+          SnackBar(content: Text('Error updating request. Please try again.')),
         );
       }
+    } else {
+      _logger.w('Form validation failed. Please check your inputs.');
     }
   }
 
