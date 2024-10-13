@@ -13,57 +13,75 @@ class TimePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async {
-        final TimeOfDay? picked = await showTimePicker(
-          context: context,
-          initialTime: selectedTime ?? TimeOfDay.now(),
-          builder: (BuildContext context, Widget? child) {
-            return Theme(
-              data: ThemeData.light().copyWith(
-                colorScheme: ColorScheme.light(
-                  primary: Colors.green,
-                  onPrimary: Colors.white,
-                  surface: Colors.white,
-                  onSurface: Colors.black,
-                ),
-                dialogBackgroundColor: Colors.white,
-              ),
-              child: child!,
-            );
-          },
+      onTap: () => _selectTime(context),
+      child: _buildTimePickerUI(context),
+    );
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: selectedTime ?? TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: const Color(0xFF5FAD46),
+            colorScheme: const ColorScheme.light(primary: Color(0xFF5FAD46)),
+            buttonTheme:
+                const ButtonThemeData(textTheme: ButtonTextTheme.primary),
+          ),
+          child: child!,
         );
-        if (picked != null) {
-          onTimeSelected(picked);
-        }
       },
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: 'Pickup Time',
-          labelStyle: TextStyle(color: Colors.green),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.green),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.green.shade300),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.green, width: 2),
-          ),
-          filled: true,
-          fillColor: Colors.grey[200],
-          suffixIcon: Icon(Icons.access_time, color: Colors.green),
-        ),
-        child: Text(
-          selectedTime == null ? 'Select Time' : selectedTime!.format(context),
+    );
+    if (picked != null) {
+      onTimeSelected(picked);
+    }
+  }
+
+  Widget _buildTimePickerUI(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Pickup Time', // Label for the time picker
           style: TextStyle(
             fontSize: 16,
-            color: Colors.black87,
+            color: Color.fromARGB(221, 80, 79, 79),
+            fontWeight: FontWeight.w600,
           ),
         ),
+        const SizedBox(height: 6), // Space between label and input field
+        InputDecorator(
+          decoration: _inputDecoration(),
+          child: Text(
+            selectedTime == null
+                ? ''
+                : selectedTime!.format(context), // Display selected time
+            style: const TextStyle(
+              fontSize: 16,
+              color: Color.fromARGB(221, 51, 51, 51),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  InputDecoration _inputDecoration() {
+    return const InputDecoration(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderSide:
+            BorderSide(color: Color.fromARGB(255, 236, 236, 236), width: 2.0),
+      ),
+      filled: true,
+      fillColor: Color.fromARGB(255, 255, 255, 255),
+      suffixIcon: Icon(Icons.access_time, color: Color(0xFF5FAD46)),
     );
   }
 }

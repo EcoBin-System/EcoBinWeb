@@ -87,7 +87,7 @@ class _HomeState extends State<Home> {
                     );
                   },
                   child: const Text("Go to Monitor bin"),
-
+                ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
