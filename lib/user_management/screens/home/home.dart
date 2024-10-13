@@ -1,3 +1,5 @@
+import 'package:ecobin_app/pages/garbage_pickup_form.dart';
+import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:ecobin_app/user_management/screens/home/profile.dart';
 import 'package:ecobin_app/user_management/services/auth.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +73,26 @@ class _HomeState extends State<Home> {
                     );
                   },
                   child: const Text("Go to Profile"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GarbagePickupFormPage()),
+                    );
+                  },
+                  child: const Text("Pickups"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UserPickupRequestsPage()),
+                    );
+                  },
+                  child: const Text("Pickup records"),
                 ),
               ],
             ),
