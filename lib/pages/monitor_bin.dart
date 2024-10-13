@@ -17,17 +17,14 @@ class _MonitorBinState extends State<MonitorBin> {
   List<DocumentSnapshot> bins = [];
 
   // Method to retrieve bins for the current user
-Stream<QuerySnapshot> _getBinStream() {
-  // Get the current user's ID
-  String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+  Stream<QuerySnapshot> _getBinStream() {
+    String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-  // Return a stream of bins that belong to the current user
-  return FirebaseFirestore.instance
-      .collection('bins')
-      .where('userId', isEqualTo: currentUserId)
-      .snapshots();
-}
-
+    return FirebaseFirestore.instance
+        .collection('bins')
+        .where('userId', isEqualTo: currentUserId)
+        .snapshots();
+  }
 
   // Method to show update bin dialog
   void _showUpdateDialog(String binId, String currentName, String currentType, String currentHeight,
@@ -54,22 +51,17 @@ Stream<QuerySnapshot> _getBinStream() {
                 const SizedBox(height: 20),
                 TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(
-                      labelText:
-                          'Bin Label :'),
+                  decoration: const InputDecoration(labelText: 'Bin Label :'),
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: binTypeController,
-                  decoration: const InputDecoration(
-                      labelText:
-                          'Bin Type (Plastic, Organic, Recyclable, Other) :'),
+                  decoration: const InputDecoration(labelText: 'Bin Type (Plastic, Organic, Recyclable, Other) :'),
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: binHeightController,
-                  decoration:
-                      const InputDecoration(labelText: 'Bin Height (cm) :'),
+                  decoration: const InputDecoration(labelText: 'Bin Height (cm) :'),
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -173,253 +165,367 @@ Stream<QuerySnapshot> _getBinStream() {
           ),
         ),
       ),
-      body: Row(
-        children: [
-          // Sidebar menu
-          Container(
-            width: 250,
-            color: Colors.green[100],
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Dashboard',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                ListTile(
-                  title: const Text('Monitoring'),
-                  onTap: () {
-                    // Handle navigation to monitoring section
-                  },
-                ),
-                ListTile(
-                  title: const Text('Alerts'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NotificationPage(
-                          notificationService:
-                              NotificationService(), // Pass the instance
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          // Main content
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-                stream: _getBinStream(), // Listen for changes
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Check if the screen is mobile or web based on width
+          bool isMobile = constraints.maxWidth < 600;
 
-                  // Get the bins list from the snapshot
-                  List<DocumentSnapshot> bins = snapshot.data!.docs;
-
-                  return Column(
+          return Row(
+            children: [
+              // Sidebar menu (only for web)
+              if (!isMobile)
+                Container(
+                  width: 250,
+                  color: Colors.green[100],
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header (Fixed at the top)
-                      Container(
-                        padding: const EdgeInsets.only(
-                          top: 20.0,
-                          left: 40.0,
-                          right: 20.0,
-                          bottom: 5.0,
-                        ),
-                        width: double.infinity,
-                        child: const Text(
-                          'Monitor Your Bins',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
                       const Padding(
-                        padding: EdgeInsets.only(
-                          left: 40.0,
-                          right: 20.0,
-                          bottom: 10.0,
-                        ),
+                        padding: EdgeInsets.all(16.0),
                         child: Text(
-                          'You can add & monitor your bins. Check the availability of you bins.',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 40.0,
-                          right: 20.0,
-                          bottom: 10.0,
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => BinWebAddbin()),
-                            );
-                          },
-                          child: const Text('Add Bin'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[800],
-                            foregroundColor: Colors.white,
+                          'Dashboard',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
-
-                      // Carousel slider for bins
-                      bins.isNotEmpty
-                          ? CarouselSlider.builder(
-                              itemCount: bins.length,
-                              itemBuilder: (context, index, realIndex) {
-                                DocumentSnapshot bin =
-                                    bins[index]; // Get the DocumentSnapshot
-                                return _buildBinCard(
-                                    bin); // Pass the DocumentSnapshot
-                              },
-                              options: CarouselOptions(
-                                height: 450.0,
-                                enlargeCenterPage: true,
-                                autoPlay: true,
-                                aspectRatio: 16 / 9,
-                                autoPlayInterval: const Duration(seconds: 3),
+                      ListTile(
+                        title: const Text('Monitoring'),
+                        onTap: () {
+                          // Handle navigation to monitoring section
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('Alerts'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NotificationPage(
+                                notificationService:
+                                    NotificationService(), // Pass the instance
                               ),
-                            )
-                          : const Center(child: CircularProgressIndicator()),
-                    ],
-                  );
-                }),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBinCard(DocumentSnapshot bin) {
-    Map<String, dynamic> data = bin.data() as Map<String, dynamic>;
-    return Card(
-      margin: const EdgeInsets.all(10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Left side - Bin Image
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: 
-                // Conditional image selection based on availability
-                int.parse(bin['availability'].replaceAll('%', '')) <= 10
-                    ? Image.asset('images/full.png', height: 300)
-                    : Image.asset('images/empty.png', height: 300),
-                
-              ),
-          ),
-          // Right side - Bin details
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${bin['name']}',
-                    style: const TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  // Availability percentage
-                  Text(
-                    '${bin['availability']}',
-                    style: const TextStyle(
-                      fontSize: 50,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  // Description based on availability
-                  Text(
-                    _getAvailabilityDescription(bin['availability']),
-                    style: const TextStyle(
-                      fontSize: 22,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  // Bin Type and Bin Height details
-                  Text(
-                    'Bin Type: ${bin['binType']}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Text(
-                    'Bin Height: ${bin['binHeight']} cm',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          _showUpdateDialog(
-                            bin.id,
-                            bin['name'] ?? 'N/A',
-                            bin['binType'] ?? 'N/A',
-                            bin['binHeight'] ?? 'N/A',
-                            bin['address'] ?? 'N/A',
+                            ),
                           );
                         },
                       ),
-                      const SizedBox(width: 10),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          _deleteBin(bin.id);
-                        },
-                      ),
                     ],
                   ),
-                ],
+                ),
+              // Main content
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: _getBinStream(), // Listen for changes
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+
+                      // Get the bins list from the snapshot
+                      List<DocumentSnapshot> bins = snapshot.data!.docs;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header (Fixed at the top)
+                          Container(
+                            padding: const EdgeInsets.only(
+                              top: 20.0,
+                              left: 20.0,
+                              right: 20.0,
+                              bottom: 5.0,
+                            ),
+                            width: double.infinity,
+                            child: const Text(
+                              'Monitor Your Bins',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(
+                              left: 20.0,
+                              right: 20.0,
+                              bottom: 10.0,
+                            ),
+                            child: Text(
+                              'You can add & monitor your bins. Check the availability of your bins.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 20.0,
+                              right: 20.0,
+                              bottom: 10.0,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => BinWebAddbin()),
+                                );
+                              },
+                              child: const Text('Add Bin'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green[800],
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Carousel slider for bins
+                          bins.isNotEmpty
+                              ? CarouselSlider.builder(
+                                  itemCount: bins.length,
+                                  itemBuilder: (context, index, realIndex) {
+                                    DocumentSnapshot bin =
+                                        bins[index]; // Get the DocumentSnapshot
+                                    return _buildBinCard(
+                                        bin, isMobile); // Pass the DocumentSnapshot
+                                  },
+                                  options: CarouselOptions(
+                                    height: isMobile ? 560.0 : 450.0,
+                                    enlargeCenterPage: true,
+                                    autoPlay: true,
+                                    aspectRatio: 16 / 9,
+                                    autoPlayInterval: const Duration(seconds: 3),
+                                  ),
+                                )
+                              : const Center(child: CircularProgressIndicator()),
+                        ],
+                      );
+                    }),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
+
+  Widget _buildBinCard(DocumentSnapshot bin, bool isMobile) {
+  Map<String, dynamic> data = bin.data() as Map<String, dynamic>;
+
+  // Conditional image selection based on availability
+  String imagePath = int.parse(data['availability'].replaceAll('%', '')) <= 10
+      ? 'images/full.png'
+      : 'images/empty.png';
+
+  return Card(
+    margin: const EdgeInsets.all(10),
+    child: isMobile
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Bin Image
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  imagePath,
+                  height: 150,  // Adjust the image size for mobile
+                  fit: BoxFit.contain,
+                ),
+              ),
+
+              // Bin Details
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      data['name'] ?? 'N/A',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      data['availability'] ?? 'N/A',
+                      style: const TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      _getAvailabilityDescription(data['availability'] ?? 'N/A'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Bin Type: ${data['binType'] ?? 'N/A'}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Text(
+                      'Bin Height: ${data['binHeight'] ?? 'N/A'} cm',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Text(
+                      'Address: ${data['address'] ?? 'N/A'}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Action Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => _showUpdateDialog(
+                            bin.id,
+                            data['name'] ?? '',
+                            data['binType'] ?? '',
+                            data['binHeight'] ?? '',
+                            data['address'] ?? '',
+                          ),
+                          child: const Text('Update'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3E9140),
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () => _deleteBin(bin.id),
+                          child: const Text('Delete'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF9F2D25),
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Left side - Bin Image
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Image.asset(
+                    imagePath,
+                    height: 300,
+                  ),
+                ),
+              ),
+              // Right side - Bin details
+              Expanded(
+                flex: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        data['name'] ?? 'N/A',
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        data['availability'] ?? 'N/A',
+                        style: const TextStyle(
+                          fontSize: 50,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        _getAvailabilityDescription(data['availability'] ?? 'N/A'),
+                        style: const TextStyle(
+                          fontSize: 22,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      Text(
+                        'Bin Type: ${data['binType'] ?? 'N/A'}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        'Bin Height: ${data['binHeight'] ?? 'N/A'} cm',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              _showUpdateDialog(
+                                bin.id,
+                                data['name'] ?? 'N/A',
+                                data['binType'] ?? 'N/A',
+                                data['binHeight'] ?? 'N/A',
+                                data['address'] ?? 'N/A',
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 10),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              _deleteBin(bin.id);
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+  );
+}
 
   // Function to return a text description based on the availability percentage
   String _getAvailabilityDescription(String availability) {

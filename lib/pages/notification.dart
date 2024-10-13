@@ -10,11 +10,13 @@ class NotificationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
         title: const Text(
-          'Notifications',
+          'BIN',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -24,43 +26,45 @@ class NotificationPage extends StatelessWidget {
       ),
       body: Row(
         children: [
-          // Sidebar menu
-          Container(
-            width: 250,
-            color: Colors.green[100],
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Dashboard',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+          // Sidebar menu for web view only
+          if (!isMobile) ...[
+            Container(
+              width: 250,
+              color: Colors.green[100],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Dashboard',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                ),
-                ListTile(
-                  title: const Text('Monitoring'),
-                  onTap: () {
-                    // Navigate to monitoring section
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MonitorBin()),
-                    );
-                  },
-                ),
-                ListTile(
-                  title: const Text('Alerts'),
-                  onTap: () {
-                    // Navigation to alerts page.
-                  },
-                ),
-              ],
+                  ListTile(
+                    title: const Text('Monitoring'),
+                    onTap: () {
+                      // Navigate to monitoring section
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MonitorBin()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Alerts'),
+                    onTap: () {
+                      // Navigation to alerts page.
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
 
           // Main content area
           Expanded(
@@ -71,7 +75,7 @@ class NotificationPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.only(
                     top: 20.0,
-                    left: 40.0,
+                    left: 30.0,
                     right: 20.0,
                     bottom: 5.0,
                   ),
@@ -86,12 +90,12 @@ class NotificationPage extends StatelessWidget {
                 ),
                 const Padding(
                   padding: EdgeInsets.only(
-                    left: 40.0,
+                    left: 30.0,
                     right: 20.0,
                     bottom: 10.0,
                   ),
                   child: Text(
-                    'Check you notifications frequently.Here are your recent notifications regarding bin availability.',
+                    'Check your notifications frequently. Here are your recent notifications regarding bin availability.',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
@@ -100,7 +104,7 @@ class NotificationPage extends StatelessWidget {
                 // Notification list (this is where the notifications will be displayed)
                 Expanded(
                   child: FutureBuilder<List<NotificationModel>>(
-                    future: notificationService.checkBinAvailability(), // Corrected future type
+                    future: notificationService.checkBinAvailability(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -119,7 +123,7 @@ class NotificationPage extends StatelessWidget {
                         itemBuilder: (context, index) {
                           var notification = snapshot.data![index];
                           return Card(
-                            margin: const EdgeInsets.only(left: 40.0,right: 40.0,bottom: 10.0),
+                            margin: const EdgeInsets.only(left: 35.0, right: 35.0, bottom: 10.0),
                             color: Colors.green[100],
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
