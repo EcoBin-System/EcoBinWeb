@@ -10,7 +10,7 @@ class DatabaseService {
     required String address,
     required String binType,
     required String binHeight,
-    required String userId, // Add this parameter
+    required String userId, // Adding user id
     String availability = '100%', // Default value
   }) async {
     try {
@@ -19,7 +19,7 @@ class DatabaseService {
         'address': address,
         'binType': binType,
         'binHeight': binHeight,
-        'userId': userId, // Store userId in Firestore
+        'userId': userId,
         'availability': availability,
       });
       return docRef.id; // Return the document ID for QR code generation
@@ -47,7 +47,7 @@ class DatabaseService {
     }
     QuerySnapshot snapshot = await _firestore
         .collection('bins')
-        .where('userId', isEqualTo: userId) // Assuming 'userId' is the field that stores the owner's ID
+        .where('userId', isEqualTo: userId)
         .get();
     return snapshot.docs;
   }
@@ -68,7 +68,7 @@ class DatabaseService {
   Future<void> updateBinAvailability(
       String binType, String newAvailability) async {
     try {
-      // You might want to specify which bin to update based on binType
+      // Specify which bin to update based on binType
       QuerySnapshot querySnapshot = await _firestore
           .collection('bins')
           .where('binType', isEqualTo: binType)

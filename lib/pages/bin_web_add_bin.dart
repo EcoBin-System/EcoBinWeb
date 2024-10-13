@@ -92,7 +92,7 @@ class _BinWebAddbinState extends State<BinWebAddbin> {
                     // Move title to the top
                     const Padding(
                       padding: EdgeInsets.only(
-                          bottom: 50.0), // Adjusting the bottom padding for title
+                          bottom: 50.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -112,18 +112,18 @@ class _BinWebAddbinState extends State<BinWebAddbin> {
                       ),
                     ),
 
-                    // Form with extra padding around fields
+                    // Form
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40.0),
                       child: Column(
                         children: [
-                          _buildTextField('Name', nameController),
+                          _buildTextField('Bin Lable :', nameController),
                           const SizedBox(height: 30),
-                          _buildTextField('Address', addressController),
+                          _buildTextField('Address :', addressController),
                           const SizedBox(height: 30),
                           _buildDropdown(),
                           const SizedBox(height: 30),
-                          _buildTextField('Bin Height', binHeightController),
+                          _buildTextField('Bin Height (cm) :', binHeightController),
                           const SizedBox(height: 50),
                           Align(
                             alignment: Alignment.centerRight,
@@ -156,6 +156,7 @@ class _BinWebAddbinState extends State<BinWebAddbin> {
     );
   }
 
+  //Form text field
   Widget _buildTextField(String label, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,11 +174,12 @@ class _BinWebAddbinState extends State<BinWebAddbin> {
     );
   }
 
+  //Bin type drop down
   Widget _buildDropdown() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Bin Type', style: TextStyle(fontSize: 16)),
+        const Text('Bin Type :', style: TextStyle(fontSize: 16)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: selectedBinType,

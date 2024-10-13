@@ -55,7 +55,7 @@ class NotificationPage extends StatelessWidget {
                 ListTile(
                   title: const Text('Alerts'),
                   onTap: () {
-                    // Currently on Notifications page, so do nothing or close drawer if using one
+                    // Navigation to alerts page.
                   },
                 ),
               ],
@@ -120,6 +120,7 @@ class NotificationPage extends StatelessWidget {
                           var notification = snapshot.data![index];
                           return Card(
                             margin: const EdgeInsets.only(left: 40.0,right: 40.0,bottom: 10.0),
+                            color: Colors.green[100],
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Text(notification.message),

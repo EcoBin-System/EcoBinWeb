@@ -171,7 +171,7 @@ class BinWebQr extends StatelessWidget {
                   ),
                 ),
 
-                // This section is scrollable
+                // Main section
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(

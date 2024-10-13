@@ -24,14 +24,16 @@ Stream<QuerySnapshot> _getBinStream() {
   // Return a stream of bins that belong to the current user
   return FirebaseFirestore.instance
       .collection('bins')
-      .where('userId', isEqualTo: currentUserId) // Assuming 'userId' is the field that stores the owner's ID
+      .where('userId', isEqualTo: currentUserId)
       .snapshots();
 }
 
 
   // Method to show update bin dialog
-  void _showUpdateDialog(String binId, String currentType, String currentHeight,
+  void _showUpdateDialog(String binId, String currentName, String currentType, String currentHeight,
       String currentAddress) {
+    final TextEditingController nameController =
+        TextEditingController(text: currentType);
     final TextEditingController binTypeController =
         TextEditingController(text: currentType);
     final TextEditingController binHeightController =
@@ -45,10 +47,17 @@ Stream<QuerySnapshot> _getBinStream() {
         return AlertDialog(
           title: const Text('Update Bin'),
           content: Container(
-            width: 400, // Set your desired width here
+            width: 400,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                const SizedBox(height: 20),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                      labelText:
+                          'Bin Lable :'),
+                ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: binTypeController,
@@ -106,7 +115,7 @@ Stream<QuerySnapshot> _getBinStream() {
         return AlertDialog(
           title: const Text('Delete Bin'),
           content: Container(
-            width: 400, // Set your desired width here
+            width: 400,
             child: const Text('Are you sure you want to delete this bin?'),
           ),
           actions: [
@@ -248,11 +257,11 @@ Stream<QuerySnapshot> _getBinStream() {
                           bottom: 10.0,
                         ),
                         child: Text(
-                          'You can monitor your bin. Check the availability of the bin.',
+                          'You can add & monitor your bins. Check the availability of you bins.',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 20),
                       Padding(
                         padding: const EdgeInsets.only(
                           left: 40.0,
@@ -274,7 +283,7 @@ Stream<QuerySnapshot> _getBinStream() {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 20),
 
                       // Carousel slider for bins
                       bins.isNotEmpty
@@ -287,7 +296,7 @@ Stream<QuerySnapshot> _getBinStream() {
                                     bin); // Pass the DocumentSnapshot
                               },
                               options: CarouselOptions(
-                                height: 400.0,
+                                height: 450.0,
                                 enlargeCenterPage: true,
                                 autoPlay: true,
                                 aspectRatio: 16 / 9,
@@ -307,7 +316,7 @@ Stream<QuerySnapshot> _getBinStream() {
   Widget _buildBinCard(DocumentSnapshot bin) {
     Map<String, dynamic> data = bin.data() as Map<String, dynamic>;
     return Card(
-      margin: const EdgeInsets.all(15),
+      margin: const EdgeInsets.all(10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -334,6 +343,15 @@ Stream<QuerySnapshot> _getBinStream() {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Text(
+                    '${bin['name']}',
+                    style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   // Availability percentage
                   Text(
                     '${bin['availability']}',
@@ -377,6 +395,7 @@ Stream<QuerySnapshot> _getBinStream() {
                         onPressed: () {
                           _showUpdateDialog(
                             bin.id,
+                            bin['name'] ?? 'N/A',
                             bin['binType'] ?? 'N/A',
                             bin['binHeight'] ?? 'N/A',
                             bin['address'] ?? 'N/A',
