@@ -1,3 +1,4 @@
+import 'package:ecobin_app/pages/bin_qr.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -208,6 +209,15 @@ class _MonitorBinState extends State<MonitorBin> {
                                     NotificationService(), // Pass the instance
                               ),
                             ),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('Scan QR code'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => BinQr()),
                           );
                         },
                       ),
