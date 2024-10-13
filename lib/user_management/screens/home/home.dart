@@ -1,6 +1,7 @@
 import 'package:ecobin_app/user_management/screens/home/profile.dart';
 import 'package:ecobin_app/user_management/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ecobin_app/pages/goals.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -71,6 +72,18 @@ class _HomeState extends State<Home> {
                     );
                   },
                   child: const Text("Go to Profile"),
+                ),
+
+                // Add a button to navigate to the goals page
+                ElevatedButton(
+                  onPressed: () {
+                    // Navigate to the goals page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Goals()),
+                    );
+                  },
+                  child: const Text("Goals"),
                 ),
               ],
             ),
