@@ -1,7 +1,10 @@
+import 'package:ecobin_app/pages/garbage_pickup_form.dart';
+import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:ecobin_app/user_management/screens/home/profile.dart';
 import 'package:ecobin_app/user_management/services/auth.dart';
 import 'package:ecobin_app/pages/monitor_bin.dart';
 import 'package:flutter/material.dart';
+import 'package:ecobin_app/pages/goals.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -85,6 +88,37 @@ class _HomeState extends State<Home> {
                     );
                   },
                   child: const Text("Go to Monitor bin"),
+
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GarbagePickupFormPage()),
+                    );
+                  },
+                  child: const Text("Pickups"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UserPickupRequestsPage()),
+                    );
+                  },
+                  child: const Text("Pickup records"),
+
+                // Add a button to navigate to the goals page
+                ElevatedButton(
+                  onPressed: () {
+                    // Navigate to the goals page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Goals()),
+                    );
+                  },
+                  child: const Text("Goals"),
                 ),
               ],
             ),
