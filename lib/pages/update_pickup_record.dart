@@ -105,12 +105,18 @@ class _UpdatePickupRequestPageState extends State<UpdatePickupRequestPage> {
                 SizedBox(height: 8),
                 DatePicker(
                   selectedDate: _pickupDate,
-                  onDateSelected: (date) => setState(() => _pickupDate = date),
+                  onDateSelected: (date) {
+                    setState(() => _pickupDate = date);
+                    _logger.i('Pickup date selected: $date');
+                  },
                 ),
                 SizedBox(height: 16),
                 TimePicker(
                   selectedTime: _pickupTime,
-                  onTimeSelected: (time) => setState(() => _pickupTime = time),
+                  onTimeSelected: (time) {
+                    setState(() => _pickupTime = time);
+                    _logger.i('Pickup time selected: $time');
+                  },
                 ),
                 SizedBox(height: 24),
                 Center(

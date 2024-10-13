@@ -16,7 +16,7 @@ class TimePicker extends StatelessWidget {
       onTap: () async {
         final TimeOfDay? picked = await showTimePicker(
           context: context,
-          initialTime: TimeOfDay.now(),
+          initialTime: selectedTime ?? TimeOfDay.now(),
           builder: (BuildContext context, Widget? child) {
             return Theme(
               data: ThemeData.light().copyWith(

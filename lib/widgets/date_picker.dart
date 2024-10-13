@@ -17,7 +17,7 @@ class DatePicker extends StatelessWidget {
       onTap: () async {
         final DateTime? picked = await showDatePicker(
           context: context,
-          initialDate: DateTime.now(),
+          initialDate: selectedDate ?? DateTime.now(),
           firstDate: DateTime.now(),
           lastDate: DateTime.now().add(Duration(days: 30)),
           builder: (BuildContext context, Widget? child) {
