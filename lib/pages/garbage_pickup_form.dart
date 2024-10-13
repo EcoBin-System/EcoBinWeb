@@ -23,7 +23,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
 
   final List<String> _paymentMethods = ['Credit Card'];
 
-  List<Map<String, dynamic>> _garbageBinDetails = [
+  final List<Map<String, dynamic>> _garbageBinDetails = [
     {'type': '', 'percentage': ''}
   ];
 
@@ -49,58 +49,169 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Garbage Pickup Schedule Form')),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DatePicker(
-                  selectedDate: _pickupDate,
-                  onDateSelected: (date) => setState(() => _pickupDate = date),
-                ),
-                SizedBox(height: 16),
-                TimePicker(
-                  selectedTime: _pickupTime,
-                  onTimeSelected: (time) => setState(() => _pickupTime = time),
-                ),
-                SizedBox(height: 16),
-                Text('Garbage Bin Details',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                SizedBox(height: 8),
-                ..._buildGarbageBinDetailsFields(),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: _addGarbageBinDetail,
-                  child: Text('Add Garbage Bin Detail'),
-                ),
-                SizedBox(height: 16),
-                TextFormField(
-                  controller: _totalPaymentController,
-                  decoration: InputDecoration(
-                    labelText: 'Total Payment',
+      appBar: AppBar(
+        title: const Text('Garbage Pickup Schedule'),
+        backgroundColor: Colors.green,
+        elevation: 0,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.green.shade100, Colors.white],
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Schedule Pickup',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          DatePicker(
+                            selectedDate: _pickupDate,
+                            onDateSelected: (date) =>
+                                setState(() => _pickupDate = date),
+                          ),
+                          SizedBox(height: 16),
+                          TimePicker(
+                            selectedTime: _pickupTime,
+                            onTimeSelected: (time) =>
+                                setState(() => _pickupTime = time),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  readOnly: true,
-                ),
-                SizedBox(height: 16),
-                PaymentMethodRadio(
-                  paymentMethods: _paymentMethods,
-                  selectedMethod: _paymentMethod,
-                  onMethodSelected: (method) =>
-                      setState(() => _paymentMethod = method),
-                ),
-                SizedBox(height: 24),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _submitForm,
-                    child: Text('Submit Request'),
+                  SizedBox(height: 24),
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Garbage Bin Details',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          ..._buildGarbageBinDetailsFields(),
+                          SizedBox(height: 16),
+                          Center(
+                            child: ElevatedButton.icon(
+                              onPressed: _addGarbageBinDetail,
+                              icon: Icon(Icons.add),
+                              label: Text('Add Bin Detail'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 24),
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Payment Details',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          TextFormField(
+                            controller: _totalPaymentController,
+                            decoration: InputDecoration(
+                              labelText: 'Total Payment',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              prefixIcon:
+                                  Icon(Icons.attach_money, color: Colors.green),
+                            ),
+                            readOnly: true,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 16),
+                          PaymentMethodRadio(
+                            paymentMethods: _paymentMethods,
+                            selectedMethod: _paymentMethod,
+                            onMethodSelected: (method) =>
+                                setState(() => _paymentMethod = method),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                        child: Text(
+                          'Submit Request',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
