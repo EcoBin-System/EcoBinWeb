@@ -15,6 +15,7 @@ dependencies:
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -22,3 +23,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/images/man.png
+    - assets/images/google.png
+    - assets/images/ecologo.png
+    - assets/images/ecologo2.png
+    - assets/images/mastercard.png
+    - assets/images/visa.png
