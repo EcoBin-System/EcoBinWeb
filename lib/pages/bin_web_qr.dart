@@ -69,22 +69,26 @@ class BinWebQr extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        title: const Text(
-          'QR code',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+  @override
+Widget build(BuildContext context) {
+  final bool isMobile = MediaQuery.of(context).size.width < 600;
+
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: Colors.green,
+      title: const Text(
+        'BIN',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
       ),
-      body: Row(
-        children: [
-          // Sidebar menu
+    ),
+    body: Row(
+      children: [
+        // Sidebar menu for web view only
+        if (!isMobile) ...[
           Container(
             width: 250,
             color: Colors.green[100],
@@ -105,7 +109,6 @@ class BinWebQr extends StatelessWidget {
                 ListTile(
                   title: const Text('Monitoring'),
                   onTap: () {
-                    // Navigate to monitoring section
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => MonitorBin()),
@@ -115,44 +118,46 @@ class BinWebQr extends StatelessWidget {
                 ListTile(
                   title: const Text('Alerts'),
                   onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NotificationPage(
-                    notificationService: NotificationService(), // Pass the instance
-                  ),
-                ),
-              );
-            },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NotificationPage(
+                          notificationService: NotificationService(),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
           ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // This is the header section fixed at the top
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Bin Selection & Add Details',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              //Header section fixed at the top
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Bin Selection & Add Details',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'You can see yor Bin details from this QR code.',
-                            style: TextStyle(fontSize: 16),
-                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'You can see your Bin details from this QR code.',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        if (!isMobile) // Show button in header for web
                           ElevatedButton(
                             onPressed: () => _downloadQRCodeAsPdf(binId),
                             style: ElevatedButton.styleFrom(
@@ -165,87 +170,96 @@ class BinWebQr extends StatelessWidget {
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
+              ),
 
-                // Main section
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: FutureBuilder(
-                        future: _databaseService.getBinDetailsById(binId),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
+              // Main section
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FutureBuilder(
+                      future: _databaseService.getBinDetailsById(binId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
 
-                          if (snapshot.hasError) {
-                            return const Center(
-                                child: Text('Error loading bin details'));
-                          }
+                        if (snapshot.hasError) {
+                          return const Center(child: Text('Error loading bin details'));
+                        }
 
-                          if (!snapshot.hasData ||
-                              snapshot.data?.data() == null) {
-                            return const Center(
-                                child: Text('No bin details found'));
-                          }
+                        if (!snapshot.hasData || snapshot.data?.data() == null) {
+                          return const Center(child: Text('No bin details found'));
+                        }
 
-                          // Bin data retrieved from Firestore
-                          final binData =
-                              snapshot.data!.data() as Map<String, dynamic>;
+                        // Bin data retrieved from Firestore
+                        final binData = snapshot.data!.data() as Map<String, dynamic>;
 
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                                left: 20.0, right: 70.0, bottom: 10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Bin ID: $binId',
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 40.0, right: 40.0, bottom: 10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Bin ID: $binId',
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Centering the QR code
+                              Center(
+                                child: SizedBox(
+                                  width: 300.0,
+                                  height: 300.0,
+                                  child: QrImageView(
+                                    data: binId,
+                                    version: QrVersions.auto,
+                                    size: 200.0,
+                                    gapless: false,
+                                  ),
                                 ),
-                                const SizedBox(height: 16),
+                              ),
 
-                                // Centering the QR code
-                                Center(
-                                  child: SizedBox(
-                                    width: 300.0,
-                                    height: 300.0,
-                                    child: QrImageView(
-                                      data: binId,
-                                      version: QrVersions.auto,
-                                      size: 200.0,
-                                      gapless: false,
+                              const SizedBox(height: 20),
+                              Text('Name: ${binData['name']}'),
+                              Text('Address: ${binData['address']}'),
+                              Text('Bin Type: ${binData['binType']}'),
+                              Text('Bin Height: ${binData['binHeight']}'),
+
+                              // Download button moved here for mobile view
+                              if (isMobile) // Show button below the text for mobile
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 30.0),
+                                  child: ElevatedButton(
+                                    onPressed: () => _downloadQRCodeAsPdf(binId),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green[800],
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20.0, vertical: 10.0),
+                                    ),
+                                    child: const Text(
+                                      'Download QR Code as PDF',
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ),
-
-                                const SizedBox(height: 20),
-                                Text('Name: ${binData['name']}'),
-                                Text('Address: ${binData['address']}'),
-                                Text('Bin Type: ${binData['binType']}'),
-                                Text('Bin Height: ${binData['binHeight']}'),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 }

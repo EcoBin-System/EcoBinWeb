@@ -56,4 +56,14 @@ class DatabaseMethods {
       throw e;
     }
   }
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Method to get user bin updates
+  Stream<QuerySnapshot> getUserBinUpdates(String userId) {
+    return _firestore
+        .collection('binUpdates') // Your Firestore collection name
+        .where('userId', isEqualTo: userId) // Filter by userId
+        .snapshots(); // Return a stream
+  }
 }
