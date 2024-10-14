@@ -1,8 +1,10 @@
 // goals.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecobin_app/pages/binupdate.dart';
 import 'package:ecobin_app/pages/goalsform.dart';
 import 'package:ecobin_app/pages/editgoal.dart';
+import 'package:ecobin_app/pages/useranalytics.dart';
 import 'package:ecobin_app/services/database1.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Make sure you're using Provider
@@ -181,6 +183,9 @@ class _GoalState extends State<Goals> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the user model
+    UserModel? user = Provider.of<UserModel?>(context);
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -201,7 +206,75 @@ class _GoalState extends State<Goals> {
         ),
         backgroundColor: Colors.white,
       ),
-      body: allGoalDetails(),
+      body: Column(
+        children: [
+          Expanded(
+            child: allGoalDetails(),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UpdateBinPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3E9140), // Custom color
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0, vertical: 12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                  ),
+                  child: const Text(
+                    'Update Bin',
+                    style: TextStyle(color: Colors.white), // Button text color
+                  ),
+                ),
+                const SizedBox(height: 16), // Space between buttons
+
+                // Add the button for analytics
+                ElevatedButton(
+                  onPressed: () {
+                    if (user != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserBinUpdatesPage(
+                              userId: user.uid), // Pass the user ID
+                        ),
+                      );
+                    } else {
+                      // Handle the case where the user is not logged in
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("User not logged in.")),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3E9140), // Custom color
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0, vertical: 12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                  ),
+                  child: const Text(
+                    'View Analytics',
+                    style: TextStyle(color: Colors.white), // Button text color
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -89,6 +89,7 @@ class _HomeState extends State<Home> {
                   },
                   child: const Text("Go to Monitor bin"),
                 ),
+
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -109,6 +110,7 @@ class _HomeState extends State<Home> {
                   },
                   child: const Text("Pickup records"),
                 ),
+
                 // Add a button to navigate to the goals page
                 ElevatedButton(
                   onPressed: () {
