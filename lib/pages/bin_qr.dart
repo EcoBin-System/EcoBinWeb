@@ -30,13 +30,13 @@ class _BinQrState extends State<BinQr> {
           ),
         );
       } else {
-        // Handle no data found case
+        // Handle the case when no data is found
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No bin found with this ID.')),
         );
       }
     } else {
-      // Handle invalid scanned code
+      // Handle the case when the scanned code is null
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Scanned QR code is invalid.')),
       );
