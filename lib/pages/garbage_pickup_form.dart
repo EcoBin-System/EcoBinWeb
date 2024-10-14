@@ -1,3 +1,4 @@
+import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +6,7 @@ import '../models/pickup_request.dart';
 import '../widgets/date_picker.dart';
 import '../widgets/time_picker.dart';
 import '../widgets/payment_method_radio.dart';
+import 'package:logger/logger.dart';
 
 class GarbagePickupFormPage extends StatefulWidget {
   @override
@@ -15,225 +17,86 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
   final _formKey = GlobalKey<FormState>();
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-
+  final Logger _logger = Logger();
   DateTime? _pickupDate;
   TimeOfDay? _pickupTime;
   final TextEditingController _totalPaymentController = TextEditingController();
   String _paymentMethod = '';
-
-  final List<String> _paymentMethods = ['Credit Card'];
-
   List<Map<String, dynamic>> _garbageBinDetails = [
     {'type': '', 'percentage': ''}
-  ];
-
-  final List<String> _allGarbageTypes = [
-    'Organic',
-    'Plastic',
-    'Recyclable',
-    'Other'
   ];
 
   @override
   void initState() {
     super.initState();
-    _calculateTotalPayment();
+    _fetchUserBins();
+    _logger.i('Initialized GarbagePickupFormPage');
   }
 
-  @override
-  void dispose() {
-    _totalPaymentController.dispose();
-    super.dispose();
-  }
+  Future<void> _fetchUserBins() async {
+    final currentUser = _auth.currentUser;
+    if (currentUser != null) {
+      try {
+        final binsSnapshot = await _firestore
+            .collection('bins')
+            .where('userId', isEqualTo: currentUser.uid)
+            .get();
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Garbage Pickup Schedule Form')),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DatePicker(
-                  selectedDate: _pickupDate,
-                  onDateSelected: (date) => setState(() => _pickupDate = date),
-                ),
-                SizedBox(height: 16),
-                TimePicker(
-                  selectedTime: _pickupTime,
-                  onTimeSelected: (time) => setState(() => _pickupTime = time),
-                ),
-                SizedBox(height: 16),
-                Text('Garbage Bin Details',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                SizedBox(height: 8),
-                ..._buildGarbageBinDetailsFields(),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: _addGarbageBinDetail,
-                  child: Text('Add Garbage Bin Detail'),
-                ),
-                SizedBox(height: 16),
-                TextFormField(
-                  controller: _totalPaymentController,
-                  decoration: InputDecoration(
-                    labelText: 'Total Payment',
-                  ),
-                  readOnly: true,
-                ),
-                SizedBox(height: 16),
-                PaymentMethodRadio(
-                  paymentMethods: _paymentMethods,
-                  selectedMethod: _paymentMethod,
-                  onMethodSelected: (method) =>
-                      setState(() => _paymentMethod = method),
-                ),
-                SizedBox(height: 24),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _submitForm,
-                    child: Text('Submit Request'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+        final fetchedBins = binsSnapshot.docs.map((doc) {
+          final binData = doc.data() as Map<String, dynamic>;
+          final usedPercentage =
+              _calculateUsedPercentage(binData['availability']);
+          return {
+            'type': binData['binType'] ?? '',
+            'percentage': usedPercentage
+          };
+        }).toList();
 
-  List<Widget> _buildGarbageBinDetailsFields() {
-    return _garbageBinDetails.asMap().entries.map((entry) {
-      int idx = entry.key;
-      var detail = entry.value;
-      List<String> availableTypes = _getAvailableGarbageTypes(idx);
-
-      // Ensure the current value is in the available types
-      String currentValue = detail['type'];
-      if (currentValue.isNotEmpty && !availableTypes.contains(currentValue)) {
-        availableTypes.add(currentValue);
+        setState(() {
+          _garbageBinDetails = fetchedBins.isNotEmpty
+              ? fetchedBins
+              : [
+                  {'type': '', 'percentage': ''}
+                ];
+        });
+        _calculateTotalPayment();
+      } catch (e) {
+        _logger.e('Error fetching bins: $e');
       }
-
-      return Row(
-        children: [
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              value: currentValue.isNotEmpty ? currentValue : null,
-              decoration: InputDecoration(labelText: 'Type'),
-              items: availableTypes.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _garbageBinDetails[idx]['type'] = newValue ?? '';
-                });
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please select a bin type';
-                }
-                return null;
-              },
-            ),
-          ),
-          SizedBox(width: 8),
-          Expanded(
-            child: TextFormField(
-              initialValue: detail['percentage'],
-              decoration: InputDecoration(labelText: 'Percentage'),
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                setState(() {
-                  _garbageBinDetails[idx]['percentage'] = value;
-                  _calculateTotalPayment();
-                });
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the percentage';
-                }
-                double? percentage = double.tryParse(value);
-                if (percentage == null || percentage < 0 || percentage > 100) {
-                  return 'Enter a valid percentage (0-100)';
-                }
-                return null;
-              },
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () => _removeGarbageBinDetail(idx),
-          ),
-        ],
-      );
-    }).toList();
+    }
   }
 
-  List<String> _getAvailableGarbageTypes(int currentIndex) {
-    List<String> selectedTypes = _garbageBinDetails
-        .asMap()
-        .entries
-        .where((entry) =>
-            entry.key != currentIndex && entry.value['type'].isNotEmpty)
-        .map((entry) => entry.value['type'] as String)
-        .toList();
-
-    return _allGarbageTypes
-        .where((type) => !selectedTypes.contains(type))
-        .toList();
-  }
-
-  void _addGarbageBinDetail() {
-    setState(() {
-      _garbageBinDetails.add({'type': '', 'percentage': ''});
-    });
-  }
-
-  void _removeGarbageBinDetail(int index) {
-    setState(() {
-      _garbageBinDetails.removeAt(index);
-      _calculateTotalPayment();
-    });
+  String _calculateUsedPercentage(String? availabilityString) {
+    final availability =
+        double.tryParse(availabilityString?.replaceAll('%', '') ?? '0') ?? 0;
+    return (100 - availability).toStringAsFixed(0);
   }
 
   void _calculateTotalPayment() {
     double totalPayment = 0;
     for (var detail in _garbageBinDetails) {
-      double percentage = double.tryParse(detail['percentage'] ?? '0') ?? 0;
-      totalPayment += (percentage / 100) * 50;
+      totalPayment +=
+          (double.tryParse(detail['percentage'] ?? '0') ?? 0) / 100 * 150;
     }
     _totalPaymentController.text = totalPayment.toStringAsFixed(2);
+    _logger.i('Calculated total payment: $totalPayment');
   }
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
-        User? currentUser = _auth.currentUser;
+        final currentUser = _auth.currentUser;
         if (currentUser != null) {
-          DocumentSnapshot userDoc =
+          final userDoc =
               await _firestore.collection('users').doc(currentUser.uid).get();
+          if (!userDoc.exists) throw Exception('User document does not exist');
 
-          if (!userDoc.exists) {
-            throw Exception('User document does not exist');
-          }
-
-          Map<String, dynamic> userData =
-              userDoc.data() as Map<String, dynamic>;
-
+          final userData = userDoc.data() as Map<String, dynamic>;
           if (_pickupDate == null || _pickupTime == null) {
             throw Exception('Pickup date or time is not selected');
           }
 
-          PickupRequest request = PickupRequest(
+          final request = PickupRequest(
             userId: currentUser.uid,
             userName: userData['name'],
             userAddress:
@@ -248,19 +111,165 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
           );
 
           await _firestore.collection('pickupRequests').add(request.toMap());
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Pickup request submitted successfully!')),
-          );
+          _navigateToPickupRecordsPage();
         } else {
           throw Exception('No authenticated user found');
         }
       } catch (e) {
-        print('Error submitting form: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        _showErrorSnackBar('Failed to submit request: $e');
       }
+    } else {
+      _logger.w('Form validation failed');
     }
+  }
+
+  void _navigateToPickupRecordsPage() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => UserPickupRequestsPage()),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  void dispose() {
+    _totalPaymentController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF27AE60),
+        title: const Text("Pickup Form",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 100),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DatePicker(
+                  selectedDate: _pickupDate,
+                  onDateSelected: (date) => setState(() => _pickupDate = date),
+                ),
+                const SizedBox(height: 16),
+                TimePicker(
+                  selectedTime: _pickupTime,
+                  onTimeSelected: (time) => setState(() => _pickupTime = time),
+                ),
+                const SizedBox(height: 16),
+                Column(
+                  children: _buildGarbageBinDetailsFields(),
+                ),
+                const SizedBox(height: 16),
+                _buildTotalPaymentField(),
+                const SizedBox(height: 16),
+                _buildPaymentMethodField(),
+                const SizedBox(height: 24),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _submitForm();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5FAD46),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTotalPaymentField() {
+    return _buildInputContainer(
+      label: 'Total Amount(LKR)',
+      input: Text(_totalPaymentController.text),
+      icon: Icons.money,
+    );
+  }
+
+  Widget _buildPaymentMethodField() {
+    return _buildInputContainer(
+      label: 'Payment Method',
+      input: PaymentMethodRadio(
+        paymentMethods: const ['Credit Card'],
+        selectedMethod: _paymentMethod,
+        onMethodSelected: (method) => setState(() => _paymentMethod = method),
+      ),
+    );
+  }
+
+  Widget _buildInputContainer(
+      {required String label, required Widget input, IconData? icon}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 6),
+        InputDecorator(
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12))),
+            suffixIcon:
+                icon != null ? Icon(icon, color: Color(0xFF5FAD46)) : null,
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          child: input,
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildGarbageBinDetailsFields() {
+    return _garbageBinDetails.map((detail) {
+      return Container(
+        padding: const EdgeInsets.all(12.0),
+        margin: const EdgeInsets.symmetric(vertical: 6.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFECECEC), width: 1.0),
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+                flex: 2,
+                child: Text('${detail['type']}',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold))),
+            Expanded(
+                flex: 1,
+                child: Text('${detail['percentage']}%',
+                    textAlign: TextAlign.right)),
+          ],
+        ),
+      );
+    }).toList();
   }
 }
