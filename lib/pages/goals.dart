@@ -107,6 +107,7 @@ class _GoalState extends State<Goals> {
                             fontWeight: FontWeight.normal,
                           ),
                         ),
+                        const SizedBox(height: 8.0), // Space between texts
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.green),
                           onPressed: () {
@@ -200,11 +201,11 @@ class _GoalState extends State<Goals> {
         title: const Text(
           "Goals",
           style: TextStyle(
-            color: Colors.blue,
+            color: Colors.white, // Set the text color to white
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF27AE60), // Change header color
       ),
       body: Column(
         children: [

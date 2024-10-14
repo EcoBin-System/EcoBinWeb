@@ -27,13 +27,24 @@ class _Sign_InState extends State<Sign_In> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0XffE7EBE8),
-      appBar: AppBar(
-        title: const Text("SIGN IN"),
-        backgroundColor: const Color(0XffE7EBE8),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56.0),
+        child: Container(
+          color: const Color(0XffE7EBE8),
+          child: Center(
+            child: const Text(
+              "SIGN IN",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(left: 15, right: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Column(
             children: [
               const Text(
@@ -45,143 +56,157 @@ class _Sign_InState extends State<Sign_In> {
                 "assets/images/ecologo.png",
                 height: 200,
               )),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
+              Container(
+                width: 350,
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
                 child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        //email
-                        TextFormField(
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 0, 0, 0)),
-                          decoration: const InputDecoration(
-                            hintText: "E-mail or Username",
-                          ),
-                          validator: (val) => val?.isEmpty == true
-                              ? "Enter the valid username or email"
-                              : null,
-                          onChanged: (val) {
-                            setState(() {
-                              email = val;
-                            });
-                          },
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      //email
+                      TextFormField(
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 0, 0, 0)),
+                        decoration: const InputDecoration(
+                          hintText: "E-mail or Username",
                         ),
-                        //password
-                        const SizedBox(
-                          height: 20,
+                        validator: (val) => val?.isEmpty == true
+                            ? "Enter the valid username or email"
+                            : null,
+                        onChanged: (val) {
+                          setState(() {
+                            email = val;
+                          });
+                        },
+                      ),
+                      //password
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      TextFormField(
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 0, 0, 0),
                         ),
-                        TextFormField(
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "Password",
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
+                        decoration: InputDecoration(
+                          hintText: "Password",
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.grey,
                             ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
                           ),
-                          obscureText:
-                              _obscurePassword, // Hide or show the password
-                          validator: (val) => val != null && val.length < 6
-                              ? "Enter a valid password"
-                              : null,
-                          onChanged: (val) {
+                        ),
+                        obscureText:
+                            _obscurePassword, // Hide or show the password
+                        validator: (val) => val != null && val.length < 6
+                            ? "Enter a valid password"
+                            : null,
+                        onChanged: (val) {
+                          setState(() {
+                            password = val;
+                          });
+                        },
+                      ),
+                      //error message
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        error,
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      //google
+                      const Text("Logging in with social accounts",
+                          style: descriptionStyle),
+                      GestureDetector(
+                        //sign in with google
+                        onTap: () {},
+                        child: Center(
+                            child: Image.asset(
+                          "assets/images/google.png",
+                          height: 50,
+                        )),
+                      ),
+                      const SizedBox(
+                        width: 20,
+                      ),
+                      //register
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Do not have an account?",
+                              style: descriptionStyle),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          GestureDetector(
+                            //go to the registr page
+                            onTap: () {
+                              widget.toggle();
+                            },
+                            child: const Text(
+                              "Register",
+                              style: TextStyle(
+                                  color: mainBlue, fontWeight: FontWeight.w600),
+                            ),
+                          )
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      //button
+                      GestureDetector(
+                        //method for logging user
+                        onTap: () async {
+                          dynamic result = await _auth
+                              .signInUsingEmailAndPassword(email, password);
+                          if (result == null) {
                             setState(() {
-                              password = val;
+                              error = "User not found";
                             });
-                          },
-                        ),
-                        //google
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          error,
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        //google
-                        const Text("Loging with social accounts",
-                            style: descriptionStyle),
-                        GestureDetector(
-                          //sign in with google
-                          onTap: () {},
-                          child: Center(
-                              child: Image.asset(
-                            "assets/images/google.png",
-                            height: 50,
+                          }
+                        },
+                        child: Container(
+                          height: 40,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: const Color(0Xff5FAD46),
+                            borderRadius: BorderRadius.circular(100),
+                            border: Border.all(width: 2, color: mainYellow),
+                          ),
+                          child: const Center(
+                              child: Text(
+                            "LOG IN",
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.w500),
                           )),
                         ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        //register
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text("Do not have account",
-                                style: descriptionStyle),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            GestureDetector(
-                              //go to the registr page
-                              onTap: () {
-                                widget.toggle();
-                              },
-                              child: const Text(
-                                "Register",
-                                style: TextStyle(
-                                    color: mainBlue,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        //button
-                        GestureDetector(
-                          //method fro loging user
-                          onTap: () async {
-                            dynamic result = await _auth
-                                .signInUsingEmailAndPassword(email, password);
-                            if (result == null) {
-                              setState(() {
-                                error = "User not found";
-                              });
-                            }
-                          },
-                          child: Container(
-                            height: 40,
-                            width: 200,
-                            decoration: BoxDecoration(
-                              color: const Color(0Xff5FAD46),
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(width: 2, color: mainYellow),
-                            ),
-                            child: const Center(
-                                child: const Text(
-                              "LOG IN",
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 255, 255, 255),
-                                  fontWeight: FontWeight.w500),
-                            )),
-                          ),
-                        )
-                      ],
-                    )),
+                      )
+                    ],
+                  ),
+                ),
               )
             ],
           ),

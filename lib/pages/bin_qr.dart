@@ -12,8 +12,13 @@ class _BinQrState extends State<BinQr> {
   final DatabaseService _databaseService = DatabaseService();
 
   void _handleBarcodeScan(String? binCode) async {
-    if (binCode != null) {
-      // Fetch the bin details from the database using the scanned QR code
+    if (binCode != null && binCode.isNotEmpty) {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Fetching bin details...')),
+      );
+
+      // Fetch the bin details from the database
       final binDetails = await _databaseService.getBinDetailsByIdScan(binCode);
 
       if (binDetails != null) {
@@ -25,13 +30,13 @@ class _BinQrState extends State<BinQr> {
           ),
         );
       } else {
-        // Handle the case when no data is found
+        // Handle no data found case
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No bin found with this ID.')),
         );
       }
     } else {
-      // Handle the case when the scanned code is null
+      // Handle invalid scanned code
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Scanned QR code is invalid.')),
       );
@@ -42,7 +47,10 @@ class _BinQrState extends State<BinQr> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BIN',style: TextStyle(fontSize: 24, color: Colors.white),),
+        title: const Text(
+          'BIN',
+          style: TextStyle(fontSize: 24, color: Colors.white),
+        ),
         backgroundColor: Colors.green,
       ),
       body: Column(
@@ -55,9 +63,18 @@ class _BinQrState extends State<BinQr> {
                 height: 400,
                 child: MobileScanner(
                   onDetect: (BarcodeCapture barcodeCapture) {
-                    // Extract the raw value from the barcode
-                    final String? binCode = barcodeCapture.barcodes.first.rawValue; // Get the first barcode
-                    _handleBarcodeScan(binCode); // Call the handler function
+                    // Check if there are any barcodes detected
+                    if (barcodeCapture.barcodes.isNotEmpty) {
+                      // Extract the raw value from the first barcode
+                      final String? binCode = barcodeCapture
+                          .barcodes.first.rawValue; // Get the first barcode
+                      _handleBarcodeScan(binCode); // Call the handler function
+                    } else {
+                      // Handle the case when no barcodes are detected
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No barcodes detected.')),
+                      );
+                    }
                   },
                 ),
               ),

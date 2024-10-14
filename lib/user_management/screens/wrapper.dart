@@ -1,3 +1,4 @@
+//import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:ecobin_app/user_management/models/UserModel.dart';
 import 'package:ecobin_app/user_management/screens/authentication/authenticate.dart';
 import 'package:ecobin_app/user_management/screens/home/home.dart';

@@ -33,7 +33,9 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       backgroundColor: const Color(0XffE7EBE8),
       appBar: AppBar(
-        title: const Text("REGISTER"),
+        title: Center(
+          child: const Text("REGISTER"),
+        ),
         elevation: 0,
         backgroundColor: const Color(0XffE7EBE8),
       ),
@@ -52,223 +54,241 @@ class _RegisterState extends State<Register> {
                   height: 100,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      //name field
-                      TextFormField(
-                        style: const TextStyle(color: Colors.black),
-                        decoration: const InputDecoration(
-                          hintText: "Name",
-                        ),
-                        validator: (val) =>
-                            val!.isEmpty ? "Please Enter your name" : null,
-                        onChanged: (val) {
-                          setState(() {
-                            name = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      //email field
-                      TextFormField(
-                        style: const TextStyle(color: Colors.black),
-                        decoration: const InputDecoration(
-                          hintText: "Email",
-                        ),
-                        validator: (val) => val!.isEmpty
-                            ? "Enter a valid username or email"
-                            : null,
-                        onChanged: (val) {
-                          setState(() {
-                            email = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        style: const TextStyle(color: Colors.black),
-                        decoration: const InputDecoration(
-                          hintText: "NIC",
-                        ),
-                        validator: (val) {
-                          if (val == null || val.isEmpty) {
-                            return "Enter a valid NIC";
-                          } else if (!RegExp(r'^[0-9]{9}[VXvx]$')
-                                  .hasMatch(val) &&
-                              !RegExp(r'^[0-9]{12}$').hasMatch(val)) {
-                            return "Enter a valid NIC (e.g., 123456789V or 199023456789)";
-                          }
-                          return null;
-                        },
-                        onChanged: (val) {
-                          setState(() {
-                            nic = val;
-                          });
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-                      //password field
-                      TextFormField(
-                        style: const TextStyle(color: Colors.black),
-                        decoration: const InputDecoration(
-                          hintText: "Password",
-                        ),
-                        validator: (val) => val!.length < 6
-                            ? "Enter a password 6+ chars long"
-                            : null,
-                        onChanged: (val) {
-                          setState(() {
-                            password = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      //phone number field
-                      TextFormField(
-                        style: const TextStyle(color: Colors.black),
-                        decoration: const InputDecoration(
-                          hintText: "Phone Number",
-                        ),
-                        keyboardType: TextInputType
-                            .phone, // To bring up the phone number keyboard
-                        validator: (val) {
-                          if (val == null || val.isEmpty) {
-                            return "Enter a valid phone number";
-                          } else if (val.length != 10) {
-                            return "Phone number must be 10 digits";
-                          } else if (!RegExp(r'^[0-9]{10}$').hasMatch(val)) {
-                            return "Enter only digits";
-                          }
-                          return null;
-                        },
-                        onChanged: (val) {
-                          setState(() {
-                            phone = val;
-                          });
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-                      //address fields (No, Street, City)
-                      TextFormField(
-                        style: const TextStyle(color: Colors.black),
-                        decoration: const InputDecoration(
-                          hintText: "Address No.",
-                        ),
-                        validator: (val) => val!.isEmpty
-                            ? "Enter a valid address number"
-                            : null,
-                        onChanged: (val) {
-                          setState(() {
-                            addressNo = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        style: const TextStyle(color: Colors.black),
-                        decoration: const InputDecoration(
-                          hintText: "Street",
-                        ),
-                        validator: (val) =>
-                            val!.isEmpty ? "Enter a valid street" : null,
-                        onChanged: (val) {
-                          setState(() {
-                            street = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        style: const TextStyle(color: Colors.black),
-                        decoration: const InputDecoration(
-                          hintText: "City",
-                        ),
-                        validator: (val) =>
-                            val!.isEmpty ? "Enter a valid city" : null,
-                        onChanged: (val) {
-                          setState(() {
-                            city = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      //error text
-                      Text(
-                        error,
-                        style: const TextStyle(color: Colors.red, fontSize: 14),
-                      ),
-
-                      //switch to login
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Already have an account?",
-                            style: descriptionStyle,
+              // White container for the form with border radius and shadow
+              Container(
+                width: 450,
+                margin: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 3,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        //name field
+                        TextFormField(
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            hintText: "Name",
                           ),
-                          const SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: () {
-                              widget.toggle();
-                            },
-                            child: const Text(
-                              "LOGIN",
-                              style: TextStyle(
-                                color: mainBlue,
-                                fontWeight: FontWeight.w600,
+                          validator: (val) =>
+                              val!.isEmpty ? "Please Enter your name" : null,
+                          onChanged: (val) {
+                            setState(() {
+                              name = val;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        //email field
+                        TextFormField(
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            hintText: "Email",
+                          ),
+                          validator: (val) => val!.isEmpty
+                              ? "Enter a valid username or email"
+                              : null,
+                          onChanged: (val) {
+                            setState(() {
+                              email = val;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            hintText: "NIC",
+                          ),
+                          validator: (val) {
+                            if (val == null || val.isEmpty) {
+                              return "Enter a valid NIC";
+                            } else if (!RegExp(r'^[0-9]{9}[VXvx]$')
+                                    .hasMatch(val) &&
+                                !RegExp(r'^[0-9]{12}$').hasMatch(val)) {
+                              return "Enter a valid NIC (e.g., 123456789V or 199023456789)";
+                            }
+                            return null;
+                          },
+                          onChanged: (val) {
+                            setState(() {
+                              nic = val;
+                            });
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+                        //password field
+                        TextFormField(
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            hintText: "Password",
+                          ),
+                          validator: (val) => val!.length < 6
+                              ? "Enter a password 6+ chars long"
+                              : null,
+                          onChanged: (val) {
+                            setState(() {
+                              password = val;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        //phone number field
+                        TextFormField(
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            hintText: "Phone Number",
+                          ),
+                          keyboardType: TextInputType
+                              .phone, // To bring up the phone number keyboard
+                          validator: (val) {
+                            if (val == null || val.isEmpty) {
+                              return "Enter a valid phone number";
+                            } else if (val.length != 10) {
+                              return "Phone number must be 10 digits";
+                            } else if (!RegExp(r'^[0-9]{10}$').hasMatch(val)) {
+                              return "Enter only digits";
+                            }
+                            return null;
+                          },
+                          onChanged: (val) {
+                            setState(() {
+                              phone = val;
+                            });
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+                        //address fields (No, Street, City)
+                        TextFormField(
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            hintText: "Address No.",
+                          ),
+                          validator: (val) => val!.isEmpty
+                              ? "Enter a valid address number"
+                              : null,
+                          onChanged: (val) {
+                            setState(() {
+                              addressNo = val;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            hintText: "Street",
+                          ),
+                          validator: (val) =>
+                              val!.isEmpty ? "Enter a valid street" : null,
+                          onChanged: (val) {
+                            setState(() {
+                              street = val;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            hintText: "City",
+                          ),
+                          validator: (val) =>
+                              val!.isEmpty ? "Enter a valid city" : null,
+                          onChanged: (val) {
+                            setState(() {
+                              city = val;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        //error text
+                        Text(
+                          error,
+                          style:
+                              const TextStyle(color: Colors.red, fontSize: 14),
+                        ),
+
+                        //switch to login
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Already have an account?",
+                              style: descriptionStyle,
+                            ),
+                            const SizedBox(width: 10),
+                            GestureDetector(
+                              onTap: () {
+                                widget.toggle();
+                              },
+                              child: const Text(
+                                "LOGIN",
+                                style: TextStyle(
+                                  color: mainBlue,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        //button
+                        const SizedBox(height: 20),
+                        GestureDetector(
+                          onTap: () async {
+                            if (_formKey.currentState!.validate()) {
+                              dynamic result =
+                                  await _auth.registerWithEmailAndPassword(
+                                      name,
+                                      email,
+                                      nic,
+                                      password,
+                                      phone,
+                                      addressNo,
+                                      street,
+                                      city);
+                              if (result == null) {
+                                setState(() {
+                                  error = "Please enter a valid email";
+                                });
+                              }
+                            }
+                          },
+                          child: Container(
+                            height: 40,
+                            width: 200,
+                            decoration: BoxDecoration(
+                              color: const Color(0Xff5FAD46),
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(width: 2, color: mainYellow),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                "REGISTER",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 255, 255, 255),
+                                    fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                      //button
-                      const SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: () async {
-                          if (_formKey.currentState!.validate()) {
-                            dynamic result =
-                                await _auth.registerWithEmailAndPassword(
-                                    name,
-                                    email,
-                                    nic,
-                                    password,
-                                    phone,
-                                    addressNo,
-                                    street,
-                                    city);
-                            if (result == null) {
-                              setState(() {
-                                error = "Please enter a valid email";
-                              });
-                            }
-                          }
-                        },
-                        child: Container(
-                          height: 40,
-                          width: 200,
-                          decoration: BoxDecoration(
-                            color: const Color(0Xff5FAD46),
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(width: 2, color: mainYellow),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "REGISTER",
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 255, 255, 255),
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               )
