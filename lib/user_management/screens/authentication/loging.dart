@@ -3,6 +3,16 @@ import 'package:ecobin_app/user_management/cocnstants/discription.dart';
 import 'package:ecobin_app/user_management/cocnstants/styles.dart';
 import 'package:ecobin_app/user_management/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+
+// Singleton pattern for AuthServices
+class AuthServiceSingleton {
+  static final AuthServiceSingleton _instance =
+      AuthServiceSingleton._internal();
+  factory AuthServiceSingleton() => _instance;
+  AuthServiceSingleton._internal();
+  final AuthServices auth = AuthServices();
+}
 
 class Sign_In extends StatefulWidget {
   final Function toggle;
@@ -23,12 +33,17 @@ class _Sign_InState extends State<Sign_In> {
   String password = "";
   String error = "";
 
+  // Initialize the logger
+  final Logger _logger = Logger();
+
   @override
   Widget build(BuildContext context) {
     // Get the screen width for responsiveness
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen =
         screenWidth < 600; // Example breakpoint for small screens
+
+    _logger.i("Sign_In screen displayed. Screen width: $screenWidth");
 
     return Scaffold(
       backgroundColor: const Color(0XffE7EBE8),
@@ -76,13 +91,18 @@ class _Sign_InState extends State<Sign_In> {
                             decoration: const InputDecoration(
                               hintText: "E-mail or Username",
                             ),
-                            validator: (val) => val?.isEmpty == true
-                                ? "Enter a valid username or email"
-                                : null,
+                            validator: (val) {
+                              if (val?.isEmpty == true) {
+                                _logger.w("Empty email or username input");
+                                return "Enter a valid username or email";
+                              }
+                              return null;
+                            },
                             onChanged: (val) {
                               setState(() {
                                 email = val;
                               });
+                              _logger.i("Email field updated: $val");
                             },
                           ),
                           const SizedBox(height: 20),
@@ -104,17 +124,23 @@ class _Sign_InState extends State<Sign_In> {
                                   setState(() {
                                     _obscurePassword = !_obscurePassword;
                                   });
+                                  _logger.i("Password visibility toggled");
                                 },
                               ),
                             ),
                             obscureText: _obscurePassword,
-                            validator: (val) => val != null && val.length < 6
-                                ? "Enter a valid password"
-                                : null,
+                            validator: (val) {
+                              if (val != null && val.length < 6) {
+                                _logger.w("Invalid password length: $val");
+                                return "Enter a valid password";
+                              }
+                              return null;
+                            },
                             onChanged: (val) {
                               setState(() {
                                 password = val;
                               });
+                              _logger.i("Password field updated");
                             },
                           ),
                           const SizedBox(height: 20),
@@ -131,7 +157,10 @@ class _Sign_InState extends State<Sign_In> {
                             textAlign: TextAlign.center,
                           ),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              _logger.i("Google sign-in tapped");
+                              // Google sign-in logic goes here
+                            },
                             child: Center(
                               child: Image.asset(
                                 "assets/images/google.png",
@@ -167,12 +196,17 @@ class _Sign_InState extends State<Sign_In> {
                           // Login button
                           GestureDetector(
                             onTap: () async {
+                              _logger
+                                  .i("Login button tapped with email: $email");
                               dynamic result = await _auth
                                   .signInUsingEmailAndPassword(email, password);
                               if (result == null) {
                                 setState(() {
                                   error = "User not found";
                                 });
+                                _logger.w("Login failed: User not found");
+                              } else {
+                                _logger.i("Login successful");
                               }
                             },
                             child: Container(
