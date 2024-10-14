@@ -27,6 +27,7 @@ dependencies:
   logger: ^2.4.0
   fl_chart: ^0.69.0
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -34,6 +35,12 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/images/man.png
+    - assets/images/google.png
+    - assets/images/ecologo.png
+    - assets/images/ecologo2.png
+    - assets/images/mastercard.png
+    - assets/images/visa.png
 
-assets:
-    - images/

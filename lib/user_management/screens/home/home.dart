@@ -29,15 +29,13 @@ class _HomeState extends State<Home> {
           actions: [
             ElevatedButton(
               style: const ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(
-                  Color(0Xff27AE60),
-                ),
+                backgroundColor: MaterialStatePropertyAll(Color(0Xff27AE60)),
               ),
               onPressed: () async {
                 await _auth.signOut();
               },
               child: const Icon(Icons.logout),
-            )
+            ),
           ],
         ),
         body: Padding(
@@ -52,22 +50,16 @@ class _HomeState extends State<Home> {
                       fontSize: 20,
                       fontWeight: FontWeight.w800),
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
-
-                const SizedBox(
-                  height: 60,
-                ),
+                const SizedBox(height: 30),
+                const SizedBox(height: 60),
                 Center(
-                    child: Image.asset(
-                  "assets/images/man.png",
-                  height: 200,
-                )),
-                // Add a button to navigate to the profile page
+                  child: Image.asset(
+                    "assets/images/man.png",
+                    height: 200,
+                  ),
+                ),
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to the Profile page
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => Profile()),
