@@ -30,15 +30,13 @@ class _HomeState extends State<Home> {
           actions: [
             ElevatedButton(
               style: const ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(
-                  Color(0Xff27AE60),
-                ),
+                backgroundColor: MaterialStatePropertyAll(Color(0Xff27AE60)),
               ),
               onPressed: () async {
                 await _auth.signOut();
               },
               child: const Icon(Icons.logout),
-            )
+            ),
           ],
         ),
         body: Padding(

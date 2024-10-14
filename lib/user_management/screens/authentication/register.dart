@@ -15,9 +15,9 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final AuthServices _auth = AuthServices();
 
-  //form key
+  // Form key
   final _formKey = GlobalKey<FormState>();
-  //email, password, phone, and address state
+  // Email, password, phone, and address state
   String name = "";
   String email = "";
   String nic = "";
@@ -30,6 +30,11 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen width for responsiveness
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen =
+        screenWidth < 600; // Example breakpoint for small screens
+
     return Scaffold(
       backgroundColor: const Color(0XffE7EBE8),
       appBar: AppBar(

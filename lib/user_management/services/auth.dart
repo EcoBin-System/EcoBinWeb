@@ -7,6 +7,7 @@ class AuthServices {
   //firebase instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   //create a user from firebase user with uid
   UserModel? _userWithFirebaeUserUid(User? user) {
@@ -167,6 +168,64 @@ class AuthServices {
     } catch (e) {
       print("Error deleting user: $e");
       throw e;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getCardDetails(String uid) async {
+    try {
+      // Assuming that 'users' is the main collection and each user has a 'carddetails' subcollection
+      QuerySnapshot snapshot = await _db
+          .collection('users') // Access 'users' collection
+          .doc(uid) // Get the specific user's document using uid
+          .collection(
+              'carddetails') // Access 'carddetails' subcollection inside the user document
+          .get();
+
+      // Transform the documents into a list of maps
+      return snapshot.docs.map((doc) {
+        return {
+          'cardType': doc['cardType'],
+          'cardNumber': doc['cardNumber'],
+          // Include other card details if needed
+        };
+      }).toList();
+    } catch (e) {
+      print('Error fetching card details: $e');
+      return []; // Return an empty list on error
+    }
+  }
+
+  // Function to delete a specific card detail from Firestore
+  Future<void> deleteCard(String cardNumber) async {
+    try {
+      String? uid = currentUser?.uid;
+
+      if (uid != null) {
+        // Reference to the user's 'carddetails' collection
+        CollectionReference cardCollection =
+            _db.collection('users').doc(uid).collection('carddetails');
+
+        // Query to find the card by 'cardNumber' field
+        QuerySnapshot querySnapshot = await cardCollection
+            .where('cardNumber', isEqualTo: cardNumber)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          // Assuming card numbers are unique, take the first document
+          DocumentReference cardRef = querySnapshot.docs.first.reference;
+
+          // Delete the card document
+          await cardRef.delete();
+          print('Card deleted successfully: $cardNumber');
+        } else {
+          print('Card not found: $cardNumber');
+        }
+      } else {
+        print('No current user logged in.');
+      }
+    } catch (e) {
+      print("Error deleting card: $e");
+      throw e; // Rethrow the error to be caught by the calling function
     }
   }
 }

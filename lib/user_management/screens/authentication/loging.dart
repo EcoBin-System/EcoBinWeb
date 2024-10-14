@@ -16,15 +16,20 @@ class _Sign_InState extends State<Sign_In> {
   final AuthServices _auth = AuthServices();
   bool _obscurePassword = true;
 
-  //form key
+  // Form key
   final _formKey = GlobalKey<FormState>();
-  //email password state
+  // Email password state
   String email = "";
   String password = "";
   String error = "";
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen width for responsiveness
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen =
+        screenWidth < 600; // Example breakpoint for small screens
+
     return Scaffold(
       backgroundColor: const Color(0XffE7EBE8),
       appBar: PreferredSize(
