@@ -27,7 +27,8 @@ class PickupRecordCard extends StatelessWidget {
             const SizedBox(height: 16),
             _buildPaymentAndStatus(),
             const SizedBox(height: 16),
-            _buildEditButton(context),
+            if (request.status.toLowerCase() == 'pending')
+              _buildEditButton(context),
           ],
         ),
       ),
@@ -161,7 +162,7 @@ class PickupRecordCard extends StatelessWidget {
         child: Text(
           'Edit Request',
           style: TextStyle(
-            color: Colors.white, // Ensures text is visible
+            color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
