@@ -115,4 +115,19 @@ class DatabaseService {
       throw Exception('Failed to delete bin');
     }
   }
+
+  // Method to retrieve bin details by binID form QR code scanning
+  Future<Map<String, dynamic>?> getBinDetailsByIdScan(String binId) async {
+    try {
+      DocumentSnapshot snapshot = await _firestore.collection('bins').doc(binId).get();
+      if (snapshot.exists) {
+        return snapshot.data() as Map<String, dynamic>;
+      } else {
+        return null; // No bin found with this ID
+      }
+    } catch (e) {
+      print('Error fetching bin details: $e');
+      return null; // Handle errors
+    }
+  }
 }
