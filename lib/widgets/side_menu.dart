@@ -1,3 +1,4 @@
+import 'package:ecobin_app/pages/bin_qr.dart';
 import 'package:ecobin_app/pages/goals.dart';
 import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:ecobin_app/user_management/screens/home/profile.dart';
@@ -82,6 +83,17 @@ class _SideMenuState extends State<SideMenu> {
               );
             },
           ),
+          ListTile(
+            leading: Icon(Icons.qr_code), // Icon for Pickups
+            title: isCollapsed ? null : const Text('Scan QR Code'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => BinQr()),
+              );
+            },
+          ),
+
           ListTile(
             leading: Icon(Icons.flag), // Icon for Goals
             title: isCollapsed ? null : const Text('Goals'),
