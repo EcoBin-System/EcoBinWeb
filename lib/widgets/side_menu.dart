@@ -1,5 +1,6 @@
 import 'package:ecobin_app/pages/bin_qr.dart';
 import 'package:ecobin_app/pages/goals.dart';
+import 'package:ecobin_app/pages/viewtasks.dart';
 import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:ecobin_app/user_management/screens/home/profile.dart';
 import 'package:flutter/material.dart';
@@ -49,18 +50,7 @@ class _SideMenuState extends State<SideMenu> {
                     ),
                   ),
           ),
-          // Home button
-          ListTile(
-            leading: Icon(Icons.home),
-            title: isCollapsed ? null : const Text('Home'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Home()), // Navigate to Home
-              );
-            },
-          ),
+
           ListTile(
             leading: Icon(Icons.local_shipping),
             title: isCollapsed ? null : const Text('Pickups'),
@@ -108,11 +98,11 @@ class _SideMenuState extends State<SideMenu> {
           ),
           ListTile(
             leading: Icon(Icons.flag),
-            title: isCollapsed ? null : const Text('Goals'),
+            title: isCollapsed ? null : const Text('Tasks'),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Goals()),
+                MaterialPageRoute(builder: (context) => TaskListPage()),
               );
             },
           ),
