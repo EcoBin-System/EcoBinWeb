@@ -10,7 +10,8 @@ class BinQr extends StatefulWidget {
 
 class _BinQrState extends State<BinQr> {
   final DatabaseService _databaseService = DatabaseService();
-  final MobileScannerController _controller = MobileScannerController(); // Add controller
+  final MobileScannerController _controller =
+      MobileScannerController(); // Add controller
 
   void _handleBarcodeScan(String? binCode) async {
     if (binCode != null) {
@@ -46,7 +47,8 @@ class _BinQrState extends State<BinQr> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BIN', style: TextStyle(fontSize: 24, color: Colors.white)),
+        title: const Text('BIN',
+            style: TextStyle(fontSize: 24, color: Colors.white)),
         backgroundColor: Colors.green,
       ),
       body: Column(
@@ -62,7 +64,8 @@ class _BinQrState extends State<BinQr> {
                   onDetect: (BarcodeCapture barcodeCapture) {
                     if (barcodeCapture.barcodes.isNotEmpty) {
                       // Extract the raw value from the first barcode
-                      final String? binCode = barcodeCapture.barcodes.first.rawValue;
+                      final String? binCode =
+                          barcodeCapture.barcodes.first.rawValue;
                       _handleBarcodeScan(binCode); // Call the handler function
                     }
                   },
