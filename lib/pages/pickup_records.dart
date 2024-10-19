@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:ecobin_app/widgets/pickup_record_card.dart';
 import 'package:ecobin_app/models/pickup_request.dart';
 import 'package:ecobin_app/services/firebase_service.dart';
+import 'package:ecobin_app/pages/garbage_pickup_form.dart';
 
 class UserPickupRequestsPage extends StatelessWidget {
   final FirebaseService _firebaseService = FirebaseService();
@@ -39,6 +40,20 @@ class UserPickupRequestsPage extends StatelessWidget {
             _buildPickupRecordsTab(status: 'cancelled'),
           ],
         ),
+        // Floating action button
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GarbagePickupFormPage(),
+              ),
+            );
+          },
+          backgroundColor: Colors.green,
+          child: Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }

@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
 export "FLUTTER_ROOT=C:\flutter"
-export "FLUTTER_APPLICATION_PATH=C:\Users\Thathsarani\Desktop\EcoBinWeb"
+export "FLUTTER_APPLICATION_PATH=D:\SLIIT\3rd Year\1st Semester\CSSE(IT3070)\Assignment 2\App\New folder\EcoBinWeb"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=0.1.0"
