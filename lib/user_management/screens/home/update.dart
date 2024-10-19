@@ -78,40 +78,72 @@ class _UpdateProfileState extends State<UpdateProfile> {
         title: const Text('Update Profile'),
         backgroundColor: const Color(0Xff27AE60),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: ListView(
-          children: [
-            _buildTextField('Name', nameController),
-            const SizedBox(height: 10),
-            _buildTextField('Email', emailController),
-            const SizedBox(height: 10),
-            _buildTextField('NIC', nicController),
-            const SizedBox(height: 10),
-            _buildTextField('Phone', phoneController),
-            const SizedBox(height: 10),
-            _buildTextField('Address No', addressNoController),
-            const SizedBox(height: 10),
-            _buildTextField('Street', streetController),
-            const SizedBox(height: 10),
-            _buildTextField('City', cityController),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: _saveProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            child: Container(
+              width: MediaQuery.of(context).size.width > 600
+                  ? 600
+                  : double.infinity,
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3), // changes position of shadow
+                  ),
+                ],
               ),
-              child: const Text(
-                'Save',
-                style: TextStyle(fontSize: 16, color: Colors.white),
+              child: Column(
+                children: [
+                  const Text(
+                    'Update Profile',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0Xff27AE60),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildTextField('Name', nameController),
+                  const SizedBox(height: 10),
+                  _buildTextField('Email', emailController),
+                  const SizedBox(height: 10),
+                  _buildTextField('NIC', nicController),
+                  const SizedBox(height: 10),
+                  _buildTextField('Phone', phoneController),
+                  const SizedBox(height: 10),
+                  _buildTextField('Address No', addressNoController),
+                  const SizedBox(height: 10),
+                  _buildTextField('Street', streetController),
+                  const SizedBox(height: 10),
+                  _buildTextField('City', cityController),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0Xff27AE60),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -123,7 +155,11 @@ class _UpdateProfileState extends State<UpdateProfile> {
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
+        filled: true,
+        fillColor: const Color(0XFFF0F0F0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
     );
   }

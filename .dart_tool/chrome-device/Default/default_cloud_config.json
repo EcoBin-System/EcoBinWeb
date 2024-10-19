@@ -1,0 +1,259 @@
+{
+   "configs": [ {
+      "appName": "base",
+      "data": {
+         "strategy": {
+            "foreground": true,
+            "launch": true,
+            "minFetchSeconds": 5,
+            "pushTrigger": false,
+            "sessionSeconds": 0
+         }
+      },
+      "effectStrategy": "launch",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appName": "app_block",
+      "data": {
+         "androidBlockList": [ "baiduboxapp", "baiduboxlite" ],
+         "chinaDefaultValue": "allow",
+         "iosBlockList": [ "baidu.com", "zhihu.com" ],
+         "schemeMapping": [ {
+            "name": "jd.com",
+            "scheme": "openapp.jdmobile"
+         }, {
+            "name": "taobao.com",
+            "scheme": "tbopen"
+         }, {
+            "name": "zhihu.com",
+            "scheme": "zhihu"
+         }, {
+            "name": "weibo.com",
+            "scheme": "sinaweibo"
+         } ],
+         "whiteList": [ "ms-outlook", "msteams" ]
+      },
+      "effectStrategy": "realtime",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appName": "detect_pdf",
+      "data": {
+         "androidBlockList": [ "accuweather", "amazon", "baidu", "baijiahao", "bbc", "bilibili", "bing", "duckduckgo", "ebay", "facebook", "foxnews", "google", "homedepot", "hupu", "imdb", "instagram", "msn", "naver", "netflex", "paypal", "pornhub", "taobao", "twitter", "walmart", "weather", "wikipedia", "xhamster", "xiaohongshu", "xnxx", "xvideos", "yandex", "youku", "youporn", "youtube", "zhihu" ],
+         "iosBlockList": [  ],
+         "whiteList": [  ]
+      },
+      "effectStrategy": "launch",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appId": "e54758ece3475afa1b2a65wsefd0db36",
+      "appName": "ads_block",
+      "data": {
+         "videoAds": {
+            "enable": false
+         }
+      },
+      "effectStrategy": "launch",
+      "instanceId": "097d2397c3449ddb4fca654d3d0de349",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appName": "reading_view",
+      "data": {
+         "blockList": [ "gisdvl-jrvoice2.jreast.co.jp", "jrvoice2.jreast.co.jp" ],
+         "textLengthThreshold": 40,
+         "whiteList": [ "mip.shengxuxu.com" ]
+      },
+      "effectStrategy": "launch",
+      "type": "builtin",
+      "version": "1002"
+   }, {
+      "appId": "e54758ece3475afa1b2a65wsefd0db37",
+      "appName": "lightning",
+      "data": {
+         "upsellEnable": {
+            "existingUserUpsell": true,
+            "favoriteHubUpsell": false,
+            "formAutofillUpsell": false,
+            "newUserUpsell": true
+         }
+      },
+      "effectStrategy": "realtime",
+      "instanceId": "097d2397c3449ddb4fca654d3d0de34a",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appId": "e54758ece3475afa1b2a65wsefd0db92",
+      "appName": "bingviz",
+      "data": {
+         "telemetry_domain": {
+            "china": "https://cn.bing.com/dict/fwproxy/receive?sethost=gateway.bingviz.microsoftapp.net&isHttps=true&app=edge",
+            "default": "https://gateway.bingviz.microsoftapp.net/receive?app=edge",
+            "market_check_url": "https://bing.com/HPImageArchive.aspx?n=1&idx=-1&format=js&mbl=1"
+         }
+      },
+      "effectStrategy": "realtime",
+      "instanceId": "097d2397c3449ddb4fca654d3d0de148",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appId": "e54758ece3475afa1b2a65wsefd0db67",
+      "appName": "sydchat",
+      "data": {
+         "androidEnable": true,
+         "iOSEnable": true,
+         "launchMode": "VoiceFirst",
+         "regionBlockList": [ "CN", "RU", "KP" ],
+         "requiredWaitList": {
+            "androidRequiredWaitList": true,
+            "iOSRequiredWaitList": true
+         }
+      },
+      "effectStrategy": "launch",
+      "instanceId": "097d2397c3449ddb4fca654d3d0de36a",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appId": "e54758ece3475afa1b2a65asefd0db67",
+      "appName": "discoverchat",
+      "data": {
+         "androidEnable": true,
+         "iOSEnable": true,
+         "regionBlockList": [ "CN", "RU", "KP" ],
+         "requiredWaitList": {
+            "androidRequiredWaitList": true,
+            "iOSRequiredWaitList": true
+         }
+      },
+      "effectStrategy": "launch",
+      "instanceId": "097d2397c3449defb4fca654d3d0de36a",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appId": "a3f5b7c9d1e2f4a6b8c7d9e1f2a3b4c5",
+      "appName": "add_topsite",
+      "data": {
+         "newAddTopSiteEnabled": 1
+      },
+      "effectStrategy": "launch",
+      "instanceId": "3e7a9c4b1f8d6e5c2a9b7e4d1c8f3e6a",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appId": "e54758ece3475afa1b2a65wsefd0db57",
+      "appName": "browserPermissions",
+      "data": {
+         "browserPermissionsControl": {
+            "bingMicrophonePermission": false
+         }
+      },
+      "effectStrategy": "realtime",
+      "instanceId": "097d2397c3449ddb4fca654d3d0de38a",
+      "type": "buildin",
+      "version": "1001"
+   }, {
+      "appId": "",
+      "appName": "shared_links",
+      "data": {
+         "requestParams": {
+            "order": "shared",
+            "pageSize": 500,
+            "timeSpan": 5
+         }
+      },
+      "effectStrategy": "launch",
+      "instanceId": "",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appId": "a3f5b7c9d1e2f4a6b8c7d9e1f2a3b4d6",
+      "appName": "topsites",
+      "data": {
+         "latestOperationVersion": "2.2",
+         "latestOperationVersionForTesting": "2.2",
+         "topSitesV2Enabled": true
+      },
+      "effectStrategy": "launch",
+      "instanceId": "3e7a9c4b1f8d6e5c2a9b7e4d1c8f3e7b",
+      "type": "builtin",
+      "version": "1007"
+   }, {
+      "appId": "e54758ece3475afa1b2a95wsefd0db37",
+      "appName": "dma",
+      "data": {
+         "preDMAConsentInterval": 60,
+         "preDMAConsentMaxCount": 2,
+         "preDMAEnable": false
+      },
+      "effectStrategy": "launch",
+      "instanceId": "097d2397c3449ddb4fca954d3d0de34a",
+      "type": "builtin",
+      "version": "1001"
+   }, {
+      "appId": "a3f5b7c9d1e2f4a6b8c7d9e1f2a3b4d7",
+      "appName": "darkmode",
+      "data": {
+         "androidBlocklist": [ "^(.*?\\:\\/{2,3})?([^/]*?\\.)?(www\\.msn\\.)(.*\\/news\\/other.*)$", "^https?:\\/\\/edge\\.microsoft\\.com\\/edgeedrop\\/continuity\\/index\\.html(?:\\?.*)?$" ],
+         "iOSBlocklist": [ "msn.com", "reddit.com", "m.youtube.com", "https://edge.microsoft.com/edgeedrop/continuity/index.html" ]
+      },
+      "effectStrategy": "launch",
+      "instanceId": "3e7a9c4b1f8d6e5c2a9b7e4d1c8f3e7a",
+      "type": "builtin",
+      "version": "1002"
+   }, {
+      "appId": "8f6c546d0514482c9898cd8f963453cc",
+      "appName": "operation_platform",
+      "data": {
+         "operation_notification_config": {
+            "body": "",
+            "max_version": 99,
+            "min_version": 99,
+            "navigate_to": "",
+            "operation_id": 1,
+            "schedule_datetime": "12:00",
+            "target_user_profile": {
+               "operation_debug_user": true
+            },
+            "title": ""
+         },
+         "operation_upsell_config": {
+            "is_full_screen": true,
+            "max_version": 99,
+            "min_version": 99,
+            "operation_id": 1,
+            "target_user_profile": {
+               "operation_debug_user": true
+            },
+            "upsell_url": "https://edgeop.azurewebsites.net/sample"
+         }
+      },
+      "effectStrategy": "launch",
+      "instanceId": "35cafee49b9741a5ae5b2f7799ecc815",
+      "type": "normal",
+      "version": "1001"
+   }, {
+      "appId": "3779f16f2b7145cd8baa5253579828b3",
+      "appName": "growth_engine",
+      "data": {
+         "remote_upsell_config": {
+            "upsell_list": [ {
+               "id": 1,
+               "is_full_screen": true,
+               "max_version": 128,
+               "min_version": 122,
+               "remote_upsell_page": "NA",
+               "target_user_profile": {
+                  "growth_engine_debug_user": true
+               }
+            } ]
+         }
+      },
+      "effectStrategy": "launch",
+      "instanceId": "4a69a034b30744209270b9f63a1edeeb",
+      "type": "normal",
+      "version": "1001"
+   } ],
+   "version": "202111020001"
+}

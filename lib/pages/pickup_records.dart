@@ -1,36 +1,53 @@
-import 'package:ecobin_app/widgets/pickup_record_card.dart';
 import 'package:flutter/material.dart';
-import '../models/pickup_request.dart';
-import '../services/firebase_service.dart';
+import 'package:logger/logger.dart';
+import 'package:ecobin_app/widgets/pickup_record_card.dart';
+import 'package:ecobin_app/models/pickup_request.dart';
+import 'package:ecobin_app/services/firebase_service.dart';
 
 class UserPickupRequestsPage extends StatelessWidget {
   final FirebaseService _firebaseService = FirebaseService();
+  final Logger _logger = Logger();
+
+  UserPickupRequestsPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3, // Three tabs for Completed, Pending, and Cancelled
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('My Pickup Records'),
+          title: const Text("Pickups and status",
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          centerTitle: true,
           bottom: TabBar(
             tabs: [
-              Tab(text: 'Completed'),
-              Tab(text: 'Pending'),
-              Tab(text: 'Cancelled'),
+              _buildTab('Completed'),
+              _buildTab('Pending'),
+              _buildTab('Cancelled'),
             ],
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
           ),
+          backgroundColor: Color(0xFF27AE60),
         ),
         body: TabBarView(
           children: [
-            // Completed Tab
             _buildPickupRecordsTab(status: 'completed'),
-            // Pending Tab
             _buildPickupRecordsTab(status: 'pending'),
-            // Cancelled Tab
             _buildPickupRecordsTab(status: 'cancelled'),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTab(String text) {
+    return Tab(
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 16),
       ),
     );
   }
@@ -40,29 +57,73 @@ class UserPickupRequestsPage extends StatelessWidget {
       stream: _firebaseService.getUserPickupRequests(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          _logger.i('Waiting for pickup requests data...');
+          return _buildLoadingIndicator();
         }
         if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          _logger.e('Error fetching pickup requests: ${snapshot.error}');
+          return _buildErrorWidget(snapshot.error.toString());
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No pickup requests found.'));
+          _logger.w('No pickup requests found for the user.');
+          return _buildEmptyStateWidget('No pickup requests found.');
         }
 
-        // Filter pickup requests based on the specified status
         final filteredRequests = snapshot.data!
             .where((request) => request.status.toLowerCase() == status)
             .toList();
 
         if (filteredRequests.isEmpty) {
-          return Center(child: Text('No $status pickup requests found.'));
+          _logger.w('No $status pickup requests found.');
+          return _buildEmptyStateWidget('No $status pickup requests found.');
         }
 
-        return ListView.builder(
-          itemCount: filteredRequests.length,
-          itemBuilder: (context, index) {
-            return PickupRecordCard(request: filteredRequests[index]);
-          },
+        _logger.i(
+            '$status pickup requests retrieved: ${filteredRequests.length} found.');
+        return _buildPickupRequestsList(filteredRequests);
+      },
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildErrorWidget(String error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          'Error: $error',
+          style: TextStyle(color: Colors.red, fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyStateWidget(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          message,
+          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPickupRequestsList(List<PickupRequest> requests) {
+    return ListView.builder(
+      itemCount: requests.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+          child: PickupRecordCard(request: requests[index]),
         );
       },
     );
