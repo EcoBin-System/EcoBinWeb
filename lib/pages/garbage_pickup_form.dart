@@ -9,26 +9,37 @@ import '../widgets/payment_method_radio.dart';
 import 'package:logger/logger.dart';
 
 class GarbagePickupFormPage extends StatefulWidget {
+  final FirebaseAuth? auth; //FirebaseAuth instance
+  final FirebaseFirestore? firestore; //FirebaseFirestore instance
+
+  const GarbagePickupFormPage({Key? key, this.auth, this.firestore})
+      : super(key: key);
+
   @override
-  _GarbagePickupFormPageState createState() => _GarbagePickupFormPageState();
+  GarbagePickupFormPageState createState() => GarbagePickupFormPageState();
 }
 
-class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
+class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
+  late final FirebaseAuth _auth;
+  late final FirebaseFirestore _firestore;
+  late TextEditingController totalPaymentController;
+  String _paymentMethod = '';
+  List<Map<String, dynamic>> garbageBinDetails = [
+    {'type': '', 'percentage': ''}
+  ];
   final _formKey = GlobalKey<FormState>();
-  final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
   final Logger _logger = Logger();
   DateTime? _pickupDate;
   TimeOfDay? _pickupTime;
-  final TextEditingController _totalPaymentController = TextEditingController();
-  String _paymentMethod = '';
-  List<Map<String, dynamic>> _garbageBinDetails = [
-    {'type': '', 'percentage': ''}
-  ];
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize FirebaseAuth, FirebaseFirestore
+    _auth = widget.auth ?? FirebaseAuth.instance;
+    _firestore = widget.firestore ?? FirebaseFirestore.instance;
+    totalPaymentController = TextEditingController();
     _fetchUserBins();
     _logger.i('Initialized GarbagePickupFormPage');
   }
@@ -37,6 +48,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     final currentUser = _auth.currentUser;
     if (currentUser != null) {
       try {
+        // Fetch bins
         final binsSnapshot = await _firestore
             .collection('bins')
             .where('userId', isEqualTo: currentUser.uid)
@@ -45,7 +57,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
         final fetchedBins = binsSnapshot.docs.map((doc) {
           final binData = doc.data() as Map<String, dynamic>;
           final usedPercentage =
-              _calculateUsedPercentage(binData['availability']);
+              calculateUsedPercentage(binData['availability']);
           return {
             'type': binData['binType'] ?? '',
             'percentage': usedPercentage
@@ -53,37 +65,58 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
         }).toList();
 
         setState(() {
-          _garbageBinDetails = fetchedBins.isNotEmpty
+          garbageBinDetails = fetchedBins.isNotEmpty
               ? fetchedBins
               : [
                   {'type': '', 'percentage': ''}
                 ];
         });
-        _calculateTotalPayment();
+        calculateTotalPayment();
       } catch (e) {
         _logger.e('Error fetching bins: $e');
       }
     }
   }
 
-  String _calculateUsedPercentage(String? availabilityString) {
+  String calculateUsedPercentage(String? availabilityString) {
     final availability =
         double.tryParse(availabilityString?.replaceAll('%', '') ?? '0') ?? 0;
     return (100 - availability).toStringAsFixed(0);
   }
 
-  void _calculateTotalPayment() {
+  void calculateTotalPayment() {
     double totalPayment = 0;
-    for (var detail in _garbageBinDetails) {
-      totalPayment +=
-          (double.tryParse(detail['percentage'] ?? '0') ?? 0) / 100 * 150;
+    for (var detail in garbageBinDetails) {
+      double percentage = double.tryParse(detail['percentage'] ?? '0') ?? 0;
+
+      if (percentage < 0 || percentage > 100) {
+        _logger.e(
+            'Invalid percentage: $percentage. It must be between 0 and 100.');
+        throw ArgumentError('Percentage must be between 0 and 100.');
+      }
+
+      totalPayment += (percentage / 100) * 150;
     }
-    _totalPaymentController.text = totalPayment.toStringAsFixed(2);
+
+    totalPaymentController.text = totalPayment.toStringAsFixed(2);
     _logger.i('Calculated total payment: $totalPayment');
   }
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      if (_pickupDate == null) {
+        _showErrorSnackBar('Please select a pickup date.');
+        return;
+      }
+      if (_pickupTime == null) {
+        _showErrorSnackBar('Please select a pickup time.');
+        return;
+      }
+      if (_paymentMethod.isEmpty) {
+        _showErrorSnackBar('Please select a payment method.');
+        return;
+      }
+
       try {
         final currentUser = _auth.currentUser;
         if (currentUser != null) {
@@ -92,9 +125,6 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
           if (!userDoc.exists) throw Exception('User document does not exist');
 
           final userData = userDoc.data() as Map<String, dynamic>;
-          if (_pickupDate == null || _pickupTime == null) {
-            throw Exception('Pickup date or time is not selected');
-          }
 
           final request = PickupRequest(
             userId: currentUser.uid,
@@ -104,13 +134,16 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
             pickupDate: _pickupDate!,
             pickupTime:
                 '${_pickupTime!.hour}:${_pickupTime!.minute.toString().padLeft(2, '0')}',
-            garbageBinDetails: _garbageBinDetails,
-            totalPayment: double.parse(_totalPaymentController.text),
+            garbageBinDetails: garbageBinDetails,
+            totalPayment: double.parse(totalPaymentController.text),
             paymentMethod: _paymentMethod,
             createdAt: DateTime.now(),
           );
 
           await _firestore.collection('pickupRequests').add(request.toMap());
+
+          _showSuccessSnackBar('Pickup request submitted successfully!');
+
           _navigateToPickupRecordsPage();
         } else {
           throw Exception('No authenticated user found');
@@ -121,6 +154,11 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     } else {
       _logger.w('Form validation failed');
     }
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.green));
   }
 
   void _navigateToPickupRecordsPage() {
@@ -136,7 +174,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
 
   @override
   void dispose() {
-    _totalPaymentController.dispose();
+    totalPaymentController.dispose();
     super.dispose();
   }
 
@@ -159,12 +197,16 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
               children: [
                 DatePicker(
                   selectedDate: _pickupDate,
-                  onDateSelected: (date) => setState(() => _pickupDate = date),
+                  onDateSelected: (date) {
+                    setState(() => _pickupDate = date);
+                  },
                 ),
                 const SizedBox(height: 16),
                 TimePicker(
                   selectedTime: _pickupTime,
-                  onTimeSelected: (time) => setState(() => _pickupTime = time),
+                  onTimeSelected: (time) {
+                    setState(() => _pickupTime = time);
+                  },
                 ),
                 const SizedBox(height: 16),
                 Column(
@@ -204,14 +246,16 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     );
   }
 
+//total payment input field
   Widget _buildTotalPaymentField() {
     return _buildInputContainer(
       label: 'Total Amount(LKR)',
-      input: Text(_totalPaymentController.text),
+      input: Text(totalPaymentController.text),
       icon: Icons.money,
     );
   }
 
+//payment method radio buttons
   Widget _buildPaymentMethodField() {
     return _buildInputContainer(
       label: 'Payment Method',
@@ -223,6 +267,7 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     );
   }
 
+//input container- text fields
   Widget _buildInputContainer(
       {required String label, required Widget input, IconData? icon}) {
     return Column(
@@ -246,27 +291,26 @@ class _GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     );
   }
 
+//garbage bin detail
   List<Widget> _buildGarbageBinDetailsFields() {
-    return _garbageBinDetails.map((detail) {
+    return garbageBinDetails.map((detail) {
       return Container(
         padding: const EdgeInsets.all(12.0),
         margin: const EdgeInsets.symmetric(vertical: 6.0),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFECECEC), width: 1.0),
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.white,
+          border: Border.all(color: const Color(0xFF27AE60)),
+          borderRadius: BorderRadius.circular(8.0),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-                flex: 2,
-                child: Text('${detail['type']}',
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold))),
-            Expanded(
-                flex: 1,
-                child: Text('${detail['percentage']}%',
-                    textAlign: TextAlign.right)),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Bin Type: ${detail['type']}'),
+                Text('Used: ${detail['percentage']}%'),
+              ],
+            ),
           ],
         ),
       );
