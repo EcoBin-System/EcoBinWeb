@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UpdateBinPage extends StatefulWidget {
+  final FirebaseFirestore firestore;
+
+  const UpdateBinPage({Key? key, required this.firestore}) : super(key: key);
+
   @override
   _UpdateBinPageState createState() => _UpdateBinPageState();
 }
@@ -29,7 +33,7 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
   Future<void> _fetchBins() async {
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('bins').get();
+          await widget.firestore.collection('bins').get();
       setState(() {
         bins = querySnapshot.docs;
       });
@@ -65,16 +69,11 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
     }
 
     try {
-      // Update the bin details
-      await FirebaseFirestore.instance
-          .collection('bins')
-          .doc(selectedBin!.id)
-          .update({
-        'availability': newAvailability, // Store as string with '%'
+      await widget.firestore.collection('bins').doc(selectedBin!.id).update({
+        'availability': newAvailability,
       });
 
-      // Log the update in the binupdates collection
-      await FirebaseFirestore.instance.collection('binupdates').add({
+      await widget.firestore.collection('binupdates').add({
         'binId': selectedBin!.id,
         'userId': uidController.text, // Include user ID
         'binType': selectedBin!['binType'],
@@ -127,6 +126,7 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
 
   @override
   Widget build(BuildContext context) {
+    // The build method remains the same
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select and Update Bin'),
