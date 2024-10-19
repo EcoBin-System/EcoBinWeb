@@ -1,9 +1,9 @@
+import 'package:ecobin_app/pages/garbage_pickup_form.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:ecobin_app/widgets/pickup_record_card.dart';
 import 'package:ecobin_app/models/pickup_request.dart';
 import 'package:ecobin_app/services/firebase_service.dart';
-import 'package:ecobin_app/pages/garbage_pickup_form.dart';
 
 class UserPickupRequestsPage extends StatelessWidget {
   final FirebaseService _firebaseService = FirebaseService();
@@ -11,6 +11,7 @@ class UserPickupRequestsPage extends StatelessWidget {
 
   UserPickupRequestsPage({Key? key}) : super(key: key);
 
+  //main UI-tab interface
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -40,18 +41,17 @@ class UserPickupRequestsPage extends StatelessWidget {
             _buildPickupRecordsTab(status: 'cancelled'),
           ],
         ),
-        // Floating action button
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GarbagePickupFormPage(),
+                builder: (context) => const GarbagePickupFormPage(),
               ),
             );
           },
           backgroundColor: Colors.green,
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
@@ -67,6 +67,7 @@ class UserPickupRequestsPage extends StatelessWidget {
     );
   }
 
+  //tab displaying pickup requests based on status
   Widget _buildPickupRecordsTab({required String status}) {
     return StreamBuilder<List<PickupRequest>>(
       stream: _firebaseService.getUserPickupRequests(),
@@ -106,6 +107,7 @@ class UserPickupRequestsPage extends StatelessWidget {
     );
   }
 
+  //error message
   Widget _buildErrorWidget(String error) {
     return Center(
       child: Padding(
@@ -119,6 +121,7 @@ class UserPickupRequestsPage extends StatelessWidget {
     );
   }
 
+  //No request error message
   Widget _buildEmptyStateWidget(String message) {
     return Center(
       child: Padding(
@@ -132,6 +135,7 @@ class UserPickupRequestsPage extends StatelessWidget {
     );
   }
 
+  //List view for pickup request cards
   Widget _buildPickupRequestsList(List<PickupRequest> requests) {
     return ListView.builder(
       itemCount: requests.length,
