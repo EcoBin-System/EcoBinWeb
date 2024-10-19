@@ -36,7 +36,7 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
   void initState() {
     super.initState();
 
-    // Initialize FirebaseAuth and FirebaseFirestore
+    // Initialize FirebaseAuth, FirebaseFirestore
     _auth = widget.auth ?? FirebaseAuth.instance;
     _firestore = widget.firestore ?? FirebaseFirestore.instance;
     totalPaymentController = TextEditingController();
