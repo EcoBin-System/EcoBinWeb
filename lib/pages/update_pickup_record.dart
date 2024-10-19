@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:logger/logger.dart';
 import '../models/pickup_request.dart';
 import '../widgets/date_picker.dart';
 import '../widgets/time_picker.dart';
@@ -18,7 +17,6 @@ class UpdatePickupRequestPage extends StatefulWidget {
 
 class _UpdatePickupRequestPageState extends State<UpdatePickupRequestPage> {
   final _formKey = GlobalKey<FormState>();
-  final Logger _logger = Logger();
   late DateTime _pickupDate;
   late TimeOfDay _pickupTime;
 
@@ -36,20 +34,14 @@ class _UpdatePickupRequestPageState extends State<UpdatePickupRequestPage> {
     if (_formKey.currentState!.validate()) {
       try {
         final updatedRequest = _createUpdatedRequest();
-        _logger.i('Updating pickup request: ${updatedRequest.id}');
 
         await _updateFirestore(updatedRequest);
 
-        _logger.i(
-            'Pickup date and time updated successfully for request: ${widget.request.id}');
         _showSuccessMessage();
         Navigator.pop(context);
       } catch (e) {
-        _logger.e('Error updating request: $e');
         _showErrorMessage();
       }
-    } else {
-      _logger.w('Form validation failed. Please check your inputs.');
     }
   }
 
@@ -166,7 +158,6 @@ class _UpdatePickupRequestPageState extends State<UpdatePickupRequestPage> {
       selectedDate: _pickupDate,
       onDateSelected: (date) {
         setState(() => _pickupDate = date);
-        _logger.i('Pickup date selected: $date');
       },
     );
   }
@@ -176,7 +167,6 @@ class _UpdatePickupRequestPageState extends State<UpdatePickupRequestPage> {
       selectedTime: _pickupTime,
       onTimeSelected: (time) {
         setState(() => _pickupTime = time);
-        _logger.i('Pickup time selected: $time');
       },
     );
   }

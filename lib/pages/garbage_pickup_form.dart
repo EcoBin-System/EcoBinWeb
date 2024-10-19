@@ -6,7 +6,6 @@ import '../models/pickup_request.dart';
 import '../widgets/date_picker.dart';
 import '../widgets/time_picker.dart';
 import '../widgets/payment_method_radio.dart';
-import 'package:logger/logger.dart';
 
 class GarbagePickupFormPage extends StatefulWidget {
   final FirebaseAuth? auth; //FirebaseAuth instance
@@ -28,7 +27,6 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     {'type': '', 'percentage': ''}
   ];
   final _formKey = GlobalKey<FormState>();
-  final Logger _logger = Logger();
   DateTime? _pickupDate;
   TimeOfDay? _pickupTime;
 
@@ -41,7 +39,6 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     _firestore = widget.firestore ?? FirebaseFirestore.instance;
     totalPaymentController = TextEditingController();
     _fetchUserBins();
-    _logger.i('Initialized GarbagePickupFormPage');
   }
 
   Future<void> _fetchUserBins() async {
@@ -73,7 +70,7 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
         });
         calculateTotalPayment();
       } catch (e) {
-        _logger.e('Error fetching bins: $e');
+        print('Error fetching bins: $e'); // Minimal error logging for debugging
       }
     }
   }
@@ -90,8 +87,6 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
       double percentage = double.tryParse(detail['percentage'] ?? '0') ?? 0;
 
       if (percentage < 0 || percentage > 100) {
-        _logger.e(
-            'Invalid percentage: $percentage. It must be between 0 and 100.');
         throw ArgumentError('Percentage must be between 0 and 100.');
       }
 
@@ -99,7 +94,6 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     }
 
     totalPaymentController.text = totalPayment.toStringAsFixed(2);
-    _logger.i('Calculated total payment: $totalPayment');
   }
 
   void _submitForm() async {
@@ -151,8 +145,6 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
       } catch (e) {
         _showErrorSnackBar('Failed to submit request: $e');
       }
-    } else {
-      _logger.w('Form validation failed');
     }
   }
 
@@ -295,21 +287,17 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
   List<Widget> _buildGarbageBinDetailsFields() {
     return garbageBinDetails.map((detail) {
       return Container(
-        padding: const EdgeInsets.all(12.0),
-        margin: const EdgeInsets.symmetric(vertical: 6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFF27AE60)),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            border: Border.all(color: const Color(0xFFE3E6E6)),
+            borderRadius: BorderRadius.circular(8)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Bin Type: ${detail['type']}'),
-                Text('Used: ${detail['percentage']}%'),
-              ],
+            Text(
+              'Garbage Type: ${detail['type']}, '
+              'Filled Percentage: ${detail['percentage']}%',
+              style: const TextStyle(fontSize: 16),
             ),
           ],
         ),
