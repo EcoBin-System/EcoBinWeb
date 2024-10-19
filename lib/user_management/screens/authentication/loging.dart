@@ -1,6 +1,7 @@
 import 'package:ecobin_app/user_management/cocnstants/colors.dart';
 import 'package:ecobin_app/user_management/cocnstants/discription.dart';
 import 'package:ecobin_app/user_management/cocnstants/styles.dart';
+
 import 'package:ecobin_app/user_management/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -196,17 +197,21 @@ class _Sign_InState extends State<Sign_In> {
                           // Login button
                           GestureDetector(
                             onTap: () async {
-                              _logger
-                                  .i("Login button tapped with email: $email");
-                              dynamic result = await _auth
-                                  .signInUsingEmailAndPassword(email, password);
-                              if (result == null) {
-                                setState(() {
-                                  error = "User not found";
-                                });
-                                _logger.w("Login failed: User not found");
-                              } else {
-                                _logger.i("Login successful");
+                              if (_formKey.currentState!.validate()) {
+                                _logger.i(
+                                    "Login button tapped with email: $email");
+                                dynamic result =
+                                    await _auth.signInUsingEmailAndPassword(
+                                        email, password);
+                                if (result == null) {
+                                  setState(() {
+                                    error = "User not found";
+                                  });
+                                  _logger.w("Login failed: User not found");
+                                } else {
+                                  _logger.i("Login successful");
+                                  // Navigate to the home page or dashboard if needed
+                                }
                               }
                             },
                             child: Container(

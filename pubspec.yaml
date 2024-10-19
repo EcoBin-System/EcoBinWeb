@@ -14,9 +14,6 @@ dependencies:
   provider: ^6.1.2
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
-<<<<<<< HEAD
-  logger: ^2.4.0
-=======
   qr_flutter: ^4.1.0
   pdf: ^3.11.1
   carousel_slider: ^5.0.0
@@ -29,13 +26,18 @@ dependencies:
   intl: ^0.19.0
   logger: ^2.4.0
   fl_chart: ^0.69.0
->>>>>>> 6dc7318c8933f7be985d9ad7fec9be87b102f0b9
+  rxdart: ^0.28.0
+  
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  mockito: ^5.4.0
+  test: ^1.25.7
+  build_runner: ^2.4.13
 
 flutter:
   uses-material-design: true

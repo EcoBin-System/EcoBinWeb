@@ -2,9 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:ecobin_app/user_management/models/UserModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
-class AuthServices {
+class AuthServices extends ChangeNotifier {
   //firebase instance
+  late final FirebaseAuth firebaseAuth;
+
+  AuthServices({FirebaseAuth? firebaseAuth})
+      : firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
