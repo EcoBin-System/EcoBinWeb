@@ -26,12 +26,23 @@ dependencies:
   intl: ^0.19.0
   logger: ^2.4.0
   fl_chart: ^0.69.0
+  
+  
+  
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  test: ^1.25.7
+  mockito: ^5.4.4
+  build_runner: ^2.4.13
+  fake_cloud_firestore: ^3.0.3
+
+  
+
+
 
 flutter:
   uses-material-design: true

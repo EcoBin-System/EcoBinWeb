@@ -103,8 +103,10 @@ class _UpdatePickupRequestPageState extends State<UpdatePickupRequestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Update Pickup Date and Time'),
         backgroundColor: Color(0xFF27AE60),
+        title: const Text("Update Pickup Request",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
