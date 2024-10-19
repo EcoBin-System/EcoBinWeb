@@ -1,19 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecobin_app/models/pickup_request.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:logger/logger.dart'; // Import logger package
+import 'package:logger/logger.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Logger _logger = Logger(); // Create a logger instance
+  final Logger _logger = Logger();
 
   // Submit a new pickup request
   Future<void> submitPickupRequest(Map<String, dynamic> requestData) async {
     try {
       User? currentUser = _auth.currentUser;
       if (currentUser != null) {
-        _logger.i('Submitting pickup request for user: ${currentUser.uid}');
         DocumentSnapshot userDoc =
             await _firestore.collection('users').doc(currentUser.uid).get();
 
@@ -33,8 +32,6 @@ class FirebaseService {
             requestData['garbageBinDetails'] ?? [];
 
         await _firestore.collection('pickupRequests').add(requestData);
-        _logger.i(
-            'Pickup request submitted successfully for user: ${currentUser.uid}');
       } else {
         throw Exception('No authenticated user found');
       }
@@ -49,7 +46,6 @@ class FirebaseService {
   Stream<List<PickupRequest>> getUserPickupRequests() {
     User? currentUser = _auth.currentUser;
     if (currentUser != null) {
-      _logger.i('Fetching pickup requests for user: ${currentUser.uid}');
       return _firestore
           .collection('pickupRequests')
           .where('userId', isEqualTo: currentUser.uid)
@@ -59,7 +55,6 @@ class FirebaseService {
               .map((doc) => PickupRequest.fromFirestore(doc))
               .toList());
     }
-    _logger.w('No authenticated user found, returning empty list.');
     return Stream.value([]);
   }
 
@@ -73,7 +68,6 @@ class FirebaseService {
     required double totalPayment,
   }) async {
     try {
-      _logger.i('Updating waste data for request: $requestId');
       // Create the document reference for the specific request
       DocumentReference documentReference =
           _firestore.collection('pickupRequests').doc(requestId);
@@ -88,12 +82,10 @@ class FirebaseService {
 
       // Update the document in Firestore
       await documentReference.update(updatedData);
-      _logger.i('Waste data updated successfully for request: $requestId');
     } catch (e) {
       _logger.e(
           'Failed to update waste data for request: $requestId, Error: $e'); // Log the error
-      throw Exception(
-          "Failed to update waste data: $e"); // Improve error message
+      throw Exception("Failed to update waste data: $e");
     }
   }
 }
