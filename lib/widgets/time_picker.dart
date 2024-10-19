@@ -44,20 +44,18 @@ class TimePicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Pickup Time', // Label for the time picker
+          'Pickup Time',
           style: TextStyle(
             fontSize: 16,
             color: Color.fromARGB(221, 80, 79, 79),
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 6), // Space between label and input field
+        const SizedBox(height: 6),
         InputDecorator(
           decoration: _inputDecoration(),
           child: Text(
-            selectedTime == null
-                ? ''
-                : selectedTime!.format(context), // Display selected time
+            selectedTime == null ? '' : selectedTime!.format(context),
             style: const TextStyle(
               fontSize: 16,
               color: Color.fromARGB(221, 51, 51, 51),

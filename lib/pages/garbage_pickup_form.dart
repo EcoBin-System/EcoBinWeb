@@ -9,8 +9,8 @@ import '../widgets/payment_method_radio.dart';
 import 'package:logger/logger.dart';
 
 class GarbagePickupFormPage extends StatefulWidget {
-  final FirebaseAuth? auth;
-  final FirebaseFirestore? firestore;
+  final FirebaseAuth? auth; //FirebaseAuth instance
+  final FirebaseFirestore? firestore; //FirebaseFirestore instance
 
   const GarbagePickupFormPage({Key? key, this.auth, this.firestore})
       : super(key: key);
@@ -35,6 +35,8 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
   @override
   void initState() {
     super.initState();
+
+    // Initialize FirebaseAuth and FirebaseFirestore
     _auth = widget.auth ?? FirebaseAuth.instance;
     _firestore = widget.firestore ?? FirebaseFirestore.instance;
     totalPaymentController = TextEditingController();
@@ -46,6 +48,7 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     final currentUser = _auth.currentUser;
     if (currentUser != null) {
       try {
+        // Fetch bins
         final binsSnapshot = await _firestore
             .collection('bins')
             .where('userId', isEqualTo: currentUser.uid)
@@ -86,18 +89,15 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     for (var detail in garbageBinDetails) {
       double percentage = double.tryParse(detail['percentage'] ?? '0') ?? 0;
 
-      // Validate the percentage before proceeding
       if (percentage < 0 || percentage > 100) {
         _logger.e(
             'Invalid percentage: $percentage. It must be between 0 and 100.');
         throw ArgumentError('Percentage must be between 0 and 100.');
       }
 
-      // Calculate the payment for valid percentages
       totalPayment += (percentage / 100) * 150;
     }
 
-    // Update the total payment in the controller
     totalPaymentController.text = totalPayment.toStringAsFixed(2);
     _logger.i('Calculated total payment: $totalPayment');
   }
@@ -142,7 +142,6 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
 
           await _firestore.collection('pickupRequests').add(request.toMap());
 
-          // Display success message
           _showSuccessSnackBar('Pickup request submitted successfully!');
 
           _navigateToPickupRecordsPage();
@@ -199,7 +198,6 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
                 DatePicker(
                   selectedDate: _pickupDate,
                   onDateSelected: (date) {
-                    // Validate the date input here if necessary
                     setState(() => _pickupDate = date);
                   },
                 ),
@@ -207,7 +205,6 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
                 TimePicker(
                   selectedTime: _pickupTime,
                   onTimeSelected: (time) {
-                    // Validate the time input here if necessary
                     setState(() => _pickupTime = time);
                   },
                 ),
@@ -249,6 +246,7 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     );
   }
 
+//total payment input field
   Widget _buildTotalPaymentField() {
     return _buildInputContainer(
       label: 'Total Amount(LKR)',
@@ -257,6 +255,7 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     );
   }
 
+//payment method radio buttons
   Widget _buildPaymentMethodField() {
     return _buildInputContainer(
       label: 'Payment Method',
@@ -268,6 +267,7 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     );
   }
 
+//input container- text fields
   Widget _buildInputContainer(
       {required String label, required Widget input, IconData? icon}) {
     return Column(
@@ -291,6 +291,7 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
     );
   }
 
+//garbage bin detail
   List<Widget> _buildGarbageBinDetailsFields() {
     return garbageBinDetails.map((detail) {
       return Container(
@@ -310,7 +311,6 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
                 Text('Used: ${detail['percentage']}%'),
               ],
             ),
-            // Add any additional fields as necessary
           ],
         ),
       );
