@@ -1,8 +1,19 @@
 import 'package:ecobin_app/user_management/cocnstants/colors.dart';
 import 'package:ecobin_app/user_management/cocnstants/discription.dart';
 import 'package:ecobin_app/user_management/cocnstants/styles.dart';
+
 import 'package:ecobin_app/user_management/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+
+// Singleton pattern for AuthServices
+class AuthServiceSingleton {
+  static final AuthServiceSingleton _instance =
+      AuthServiceSingleton._internal();
+  factory AuthServiceSingleton() => _instance;
+  AuthServiceSingleton._internal();
+  final AuthServices auth = AuthServices();
+}
 
 class Sign_In extends StatefulWidget {
   final Function toggle;
@@ -23,6 +34,9 @@ class _Sign_InState extends State<Sign_In> {
   String password = "";
   String error = "";
 
+  // Initialize the logger
+  final Logger _logger = Logger();
+
   @override
   Widget build(BuildContext context) {
     // Get the screen width for responsiveness
@@ -30,190 +44,202 @@ class _Sign_InState extends State<Sign_In> {
     final isSmallScreen =
         screenWidth < 600; // Example breakpoint for small screens
 
+    _logger.i("Sign_In screen displayed. Screen width: $screenWidth");
+
     return Scaffold(
       backgroundColor: const Color(0XffE7EBE8),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56.0),
-        child: Container(
-          color: const Color(0XffE7EBE8),
-          child: Center(
-            child: const Text(
-              "SIGN IN",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
+      appBar: AppBar(
+        title: const Text("SIGN IN"),
+        backgroundColor: const Color(0XffE7EBE8),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Column(
-            children: [
-              const Text(
-                description,
-                style: descriptionStyle,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 10 : 40,
+              vertical: isSmallScreen ? 10 : 20,
+            ),
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: isSmallScreen
+                    ? double.infinity
+                    : 500, // Set max width for larger screens
               ),
-              Center(
-                  child: Image.asset(
-                "assets/images/ecologo.png",
-                height: 200,
-              )),
-              Container(
-                width: 350,
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
+              child: Column(
+                children: [
+                  const Text(
+                    description,
+                    style: descriptionStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                  Center(
+                    child: Image.asset(
+                      "assets/images/ecologo.png",
+                      height: isSmallScreen ? 150 : 200,
                     ),
-                  ],
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      //email
-                      TextFormField(
-                        style: const TextStyle(
-                            color: Color.fromARGB(255, 0, 0, 0)),
-                        decoration: const InputDecoration(
-                          hintText: "E-mail or Username",
-                        ),
-                        validator: (val) => val?.isEmpty == true
-                            ? "Enter the valid username or email"
-                            : null,
-                        onChanged: (val) {
-                          setState(() {
-                            email = val;
-                          });
-                        },
-                      ),
-                      //password
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      TextFormField(
-                        style: const TextStyle(
-                          color: Color.fromARGB(255, 0, 0, 0),
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "Password",
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: Colors.grey,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(isSmallScreen ? 15.0 : 20.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          // Email
+                          TextFormField(
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 0, 0, 0),
                             ),
-                            onPressed: () {
+                            decoration: const InputDecoration(
+                              hintText: "E-mail or Username",
+                            ),
+                            validator: (val) {
+                              if (val?.isEmpty == true) {
+                                _logger.w("Empty email or username input");
+                                return "Enter a valid username or email";
+                              }
+                              return null;
+                            },
+                            onChanged: (val) {
                               setState(() {
-                                _obscurePassword = !_obscurePassword;
+                                email = val;
                               });
+                              _logger.i("Email field updated: $val");
                             },
                           ),
-                        ),
-                        obscureText:
-                            _obscurePassword, // Hide or show the password
-                        validator: (val) => val != null && val.length < 6
-                            ? "Enter a valid password"
-                            : null,
-                        onChanged: (val) {
-                          setState(() {
-                            password = val;
-                          });
-                        },
-                      ),
-                      //error message
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        error,
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      //google
-                      const Text("Logging in with social accounts",
-                          style: descriptionStyle),
-                      GestureDetector(
-                        //sign in with google
-                        onTap: () {},
-                        child: Center(
-                            child: Image.asset(
-                          "assets/images/google.png",
-                          height: 50,
-                        )),
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      //register
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Do not have an account?",
-                              style: descriptionStyle),
-                          const SizedBox(
-                            width: 10,
+                          const SizedBox(height: 20),
+                          // Password
+                          TextFormField(
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Password",
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                  _logger.i("Password visibility toggled");
+                                },
+                              ),
+                            ),
+                            obscureText: _obscurePassword,
+                            validator: (val) {
+                              if (val != null && val.length < 6) {
+                                _logger.w("Invalid password length: $val");
+                                return "Enter a valid password";
+                              }
+                              return null;
+                            },
+                            onChanged: (val) {
+                              setState(() {
+                                password = val;
+                              });
+                              _logger.i("Password field updated");
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          // Error message
+                          Text(
+                            error,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          const SizedBox(height: 10),
+                          // Login with social accounts
+                          const Text(
+                            "Login with social accounts",
+                            style: descriptionStyle,
+                            textAlign: TextAlign.center,
                           ),
                           GestureDetector(
-                            //go to the registr page
                             onTap: () {
-                              widget.toggle();
+                              _logger.i("Google sign-in tapped");
+                              // Google sign-in logic goes here
                             },
-                            child: const Text(
-                              "Register",
-                              style: TextStyle(
-                                  color: mainBlue, fontWeight: FontWeight.w600),
+                            child: Center(
+                              child: Image.asset(
+                                "assets/images/google.png",
+                                height: isSmallScreen ? 40 : 50,
+                              ),
                             ),
-                          )
+                          ),
+                          const SizedBox(height: 20),
+                          // Register
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Don't have an account?",
+                                style: descriptionStyle,
+                              ),
+                              const SizedBox(width: 10),
+                              GestureDetector(
+                                onTap: () {
+                                  widget.toggle();
+                                },
+                                child: const Text(
+                                  "Register",
+                                  style: TextStyle(
+                                    color: mainBlue,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          // Login button
+                          GestureDetector(
+                            onTap: () async {
+                              if (_formKey.currentState!.validate()) {
+                                _logger.i(
+                                    "Login button tapped with email: $email");
+                                dynamic result =
+                                    await _auth.signInUsingEmailAndPassword(
+                                        email, password);
+                                if (result == null) {
+                                  setState(() {
+                                    error = "User not found";
+                                  });
+                                  _logger.w("Login failed: User not found");
+                                } else {
+                                  _logger.i("Login successful");
+                                  // Navigate to the home page or dashboard if needed
+                                }
+                              }
+                            },
+                            child: Container(
+                              height: 40,
+                              width: isSmallScreen ? screenWidth * 0.8 : 200,
+                              decoration: BoxDecoration(
+                                color: const Color(0Xff5FAD46),
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(width: 2, color: mainYellow),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  "LOG IN",
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 255, 255, 255),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      //button
-                      GestureDetector(
-                        //method for logging user
-                        onTap: () async {
-                          dynamic result = await _auth
-                              .signInUsingEmailAndPassword(email, password);
-                          if (result == null) {
-                            setState(() {
-                              error = "User not found";
-                            });
-                          }
-                        },
-                        child: Container(
-                          height: 40,
-                          width: 200,
-                          decoration: BoxDecoration(
-                            color: const Color(0Xff5FAD46),
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(width: 2, color: mainYellow),
-                          ),
-                          child: const Center(
-                              child: Text(
-                            "LOG IN",
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 255, 255, 255),
-                                fontWeight: FontWeight.w500),
-                          )),
-                        ),
-                      )
-                    ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

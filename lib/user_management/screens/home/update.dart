@@ -55,20 +55,22 @@ class _UpdateProfileState extends State<UpdateProfile> {
         );
 
         // Show a success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Profile updated successfully")),
-        );
+        _showSnackBar('Profile updated successfully');
 
         // Navigate back to Profile page with updated data
         Navigator.pop(
             context, true); // true indicates the update was successful
       } catch (e) {
         // Show an error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to update profile: ${e.toString()}")),
-        );
+        _showSnackBar('Failed to update profile: ${e.toString()}');
       }
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -96,7 +98,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                     color: Colors.grey.withOpacity(0.2),
                     spreadRadius: 5,
                     blurRadius: 7,
-                    offset: const Offset(0, 3), // changes position of shadow
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -111,19 +113,26 @@ class _UpdateProfileState extends State<UpdateProfile> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _buildTextField('Name', nameController),
+                  _buildTextField(
+                      'Name', nameController), //text fileds for update name
                   const SizedBox(height: 10),
-                  _buildTextField('Email', emailController),
+                  _buildTextField(
+                      'Email', emailController), //text fileds for update email
                   const SizedBox(height: 10),
-                  _buildTextField('NIC', nicController),
+                  _buildTextField(
+                      'NIC', nicController), //text fileds for update nic
                   const SizedBox(height: 10),
-                  _buildTextField('Phone', phoneController),
+                  _buildTextField(
+                      'Phone', phoneController), //text fileds for update phone
                   const SizedBox(height: 10),
-                  _buildTextField('Address No', addressNoController),
+                  _buildTextField('Address No',
+                      addressNoController), //text fileds for update address  no
                   const SizedBox(height: 10),
-                  _buildTextField('Street', streetController),
+                  _buildTextField('Street',
+                      streetController), //text fileds for update street
                   const SizedBox(height: 10),
-                  _buildTextField('City', cityController),
+                  _buildTextField(
+                      'City', cityController), //text fileds for update citu
                   const SizedBox(height: 30),
                   ElevatedButton(
                     onPressed: _saveProfile,

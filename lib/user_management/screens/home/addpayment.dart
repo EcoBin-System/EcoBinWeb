@@ -19,31 +19,21 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
 
   // Function to save card details to Firestore
   Future<void> _saveCardDetails() async {
-    // Get the current user from Firebase Auth
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      // If user is not authenticated, show a message or handle accordingly
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not logged in. Please log in.')),
-      );
+      _showSnackBar('User not logged in. Please log in.');
       return;
     }
 
-    if (!_formKey.currentState!.validate()) {
-      // If form is not valid, return
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     if (cardType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a card type.')),
-      );
+      _showSnackBar('Please select a card type.');
       return;
     }
 
     try {
-      // Save to Firestore inside the current user's carddetails subcollection
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -57,70 +47,59 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
         'storeForFuture': _storeForFuturePayments,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Card details saved successfully.')),
-      );
-
-      // Clear the form
-      _nameController.clear();
-      _cardNumberController.clear();
-      _expiryDateController.clear();
-      _cvvController.clear();
-      setState(() {
-        cardType = null;
-        _storeForFuturePayments = false;
-      });
+      _showSnackBar('Card details saved successfully.');
+      _clearForm();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save card details: $e')),
-      );
+      _showSnackBar('Failed to save card details: $e');
     }
   }
 
-  // Function to validate card number
+  void _clearForm() {
+    _nameController.clear();
+    _cardNumberController.clear();
+    _expiryDateController.clear();
+    _cvvController.clear();
+    setState(() {
+      cardType = null;
+      _storeForFuturePayments = false;
+    });
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  // Card Number Validation
   String? _validateCardNumber(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter the card number';
-    }
-    if (value.length != 16) {
-      return 'Card number must be 12 digits';
-    }
-    if (!RegExp(r'^\d+$').hasMatch(value)) {
-      return 'Card number must contain only digits';
-    }
+    if (value == null || value.isEmpty) return 'Please enter the card number';
+    if (value.length != 16) return 'Card number must be 16 digits';
+    if (!RegExp(r'^\d+$').hasMatch(value))
+      return 'Card number must be digits only';
     return null;
   }
 
-  // Function to validate CVV
+  // CVV Validation
   String? _validateCVV(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter the CVV';
-    }
-    if (value.length != 3) {
-      return 'CVV must be 3 digits';
-    }
-    if (!RegExp(r'^\d+$').hasMatch(value)) {
-      return 'CVV must contain only digits';
-    }
+    if (value == null || value.isEmpty) return 'Please enter the CVV';
+    if (value.length != 3) return 'CVV must be 3 digits';
+    if (!RegExp(r'^\d+$').hasMatch(value)) return 'CVV must be digits only';
     return null;
   }
 
-  // Function to validate expiry date
+  // Expiry Date Validation
   String? _validateExpiryDate(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter the expiry date';
-    }
+    if (value == null || value.isEmpty) return 'Please enter the expiry date';
     if (!RegExp(r'^(0[1-9]|1[0-2])\/[0-9]{2}$').hasMatch(value)) {
       return 'Expiry date must be in MM/YY format';
     }
     return null;
   }
 
-  // Function to validate name on the card
+  // Name on Card Validation
   String? _validateName(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.isEmpty)
       return 'Please enter the name on the card';
-    }
     if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
       return 'Name must contain only letters';
     }
@@ -149,81 +128,43 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Select Card Type:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-              Row(
-                children: [
-                  Radio<String>(
-                    value: 'Visa',
-                    groupValue: cardType,
-                    onChanged: (value) {
-                      setState(() {
-                        cardType = value;
-                      });
-                    },
-                  ),
-                  Image.asset('assets/images/visa.png', width: 40),
-                  const SizedBox(width: 10),
-                  const Text('Visa'),
-                  const SizedBox(width: 20),
-                  Radio<String>(
-                    value: 'MasterCard',
-                    groupValue: cardType,
-                    onChanged: (value) {
-                      setState(() {
-                        cardType = value;
-                      });
-                    },
-                  ),
-                  Image.asset('assets/images/mastercard.png', width: 40),
-                  const SizedBox(width: 10),
-                  const Text('MasterCard'),
-                ],
-              ),
+
+              ///text field for card name
+              _buildCardTypeSelection(),
               const SizedBox(height: 20),
-              TextFormField(
+              _buildTextField(
+                labelText: 'Name on the Card',
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name on the Card',
-                  border: OutlineInputBorder(),
-                ),
                 validator: _validateName,
               ),
               const SizedBox(height: 20),
-              TextFormField(
+
+              ///text field for card number
+              _buildTextField(
+                labelText: 'Card Number',
                 controller: _cardNumberController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Card Number',
-                  border: OutlineInputBorder(),
-                ),
                 validator: _validateCardNumber,
               ),
               const SizedBox(height: 20),
               Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
+                    child: _buildTextField(
+                      ///text field for card expire date
+                      labelText: 'Expiry Date (MM/YY)',
                       controller: _expiryDateController,
                       keyboardType: TextInputType.datetime,
-                      decoration: const InputDecoration(
-                        labelText: 'Expiry Date (MM/YY)',
-                        border: OutlineInputBorder(),
-                      ),
                       validator: _validateExpiryDate,
                     ),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
-                    child: TextFormField(
+                    child: _buildTextField(
+                      ///text field for card expire CVV
+                      labelText: 'CVV',
                       controller: _cvvController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'CVV',
-                        border: OutlineInputBorder(),
-                      ),
                       validator: _validateCVV,
                     ),
                   ),
@@ -251,14 +192,74 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  child: const Text('Save Details',
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: const Text(
+                    'Save Details',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // Helper method to build TextFormFields
+  Widget _buildTextField({
+    required String labelText,
+    required TextEditingController controller,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: const OutlineInputBorder(),
+      ),
+      validator: validator,
+    );
+  }
+
+  // Helper method for card type selection
+  Widget _buildCardTypeSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Select Card Type:',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+        Row(
+          children: [
+            _buildRadioOption('Visa', 'assets/images/visa.png'),
+            const SizedBox(width: 20),
+            _buildRadioOption('MasterCard', 'assets/images/mastercard.png'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // Helper method to build Radio buttons for card types
+  Widget _buildRadioOption(String type, String imagePath) {
+    return Row(
+      children: [
+        Radio<String>(
+          value: type,
+          groupValue: cardType,
+          onChanged: (value) {
+            setState(() {
+              cardType = value;
+            });
+          },
+        ),
+        Image.asset(imagePath, width: 40),
+        const SizedBox(width: 10),
+        Text(type),
+      ],
     );
   }
 }

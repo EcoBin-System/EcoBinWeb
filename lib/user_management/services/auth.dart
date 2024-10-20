@@ -2,9 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:ecobin_app/user_management/models/UserModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
-class AuthServices {
+class AuthServices extends ChangeNotifier {
   //firebase instance
+  late final FirebaseAuth firebaseAuth;
+
+  AuthServices({FirebaseAuth? firebaseAuth})
+      : firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -173,7 +179,6 @@ class AuthServices {
 
   Future<List<Map<String, dynamic>>> getCardDetails(String uid) async {
     try {
-      // Assuming that 'users' is the main collection and each user has a 'carddetails' subcollection
       QuerySnapshot snapshot = await _db
           .collection('users') // Access 'users' collection
           .doc(uid) // Get the specific user's document using uid
@@ -181,12 +186,10 @@ class AuthServices {
               'carddetails') // Access 'carddetails' subcollection inside the user document
           .get();
 
-      // Transform the documents into a list of maps
       return snapshot.docs.map((doc) {
         return {
           'cardType': doc['cardType'],
           'cardNumber': doc['cardNumber'],
-          // Include other card details if needed
         };
       }).toList();
     } catch (e) {
@@ -211,7 +214,6 @@ class AuthServices {
             .get();
 
         if (querySnapshot.docs.isNotEmpty) {
-          // Assuming card numbers are unique, take the first document
           DocumentReference cardRef = querySnapshot.docs.first.reference;
 
           // Delete the card document
