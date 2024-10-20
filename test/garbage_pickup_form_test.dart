@@ -1,9 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:ecobin_app/pages/garbage_pickup_form.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mockito/mockito.dart';
 import 'mocks.mocks.dart';
 
 void main() {

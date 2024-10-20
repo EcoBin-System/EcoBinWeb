@@ -70,7 +70,7 @@ class GarbagePickupFormPageState extends State<GarbagePickupFormPage> {
         });
         calculateTotalPayment();
       } catch (e) {
-        print('Error fetching bins: $e'); // Minimal error logging for debugging
+        print('Error fetching bins: $e');
       }
     }
   }
