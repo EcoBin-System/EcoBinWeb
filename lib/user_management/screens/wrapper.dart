@@ -1,6 +1,8 @@
+import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:ecobin_app/user_management/models/UserModel.dart';
 import 'package:ecobin_app/user_management/screens/authentication/authenticate.dart';
 import 'package:ecobin_app/user_management/screens/home/home.dart';
+import 'package:ecobin_app/user_management/screens/home/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ecobin_app/pages/layout.dart';
@@ -17,7 +19,7 @@ class Wrapper extends StatelessWidget {
       return Authenticate();
     } else {
       // If the user is logged in, wrap the home page with the layout that includes the side menu
-      return AppLayout(child: Home());
+      return AppLayout(child: Profile());
     }
   }
 }

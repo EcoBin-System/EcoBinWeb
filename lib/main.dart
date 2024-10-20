@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts package
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,16 +37,25 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamProvider<UserModel?>.value(
-        initialData: UserModel(uid: ""),
-        value: AuthServices().user,
-        child: const MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: Wrapper(),
-          initialRoute: '/',
-          routes: {
-            // '/login': (context) => LoginPage(),
-            // other routes
-          },
-        ));
+      initialData: UserModel(uid: ""),
+      value: AuthServices().user,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: const Wrapper(),
+        theme: ThemeData(
+          textTheme: GoogleFonts.poppinsTextTheme(
+            // Set Poppins as the default font
+            Theme.of(context).textTheme,
+          ),
+          primarySwatch: Colors.green, // Optional: set a primary color
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        initialRoute: '/',
+        routes: {
+          // '/login': (context) => LoginPage(),
+          // other routes
+        },
+      ),
+    );
   }
 }

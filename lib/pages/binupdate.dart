@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UpdateBinPage extends StatefulWidget {
+  final FirebaseFirestore firestore;
+
+  const UpdateBinPage({Key? key, required this.firestore}) : super(key: key);
+
   @override
   _UpdateBinPageState createState() => _UpdateBinPageState();
 }
@@ -13,23 +17,21 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
   TextEditingController binHeightController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController availabilityController = TextEditingController();
-  TextEditingController uidController =
-      TextEditingController(); // Controller for user ID
+  TextEditingController uidController = TextEditingController();
 
-  List<DocumentSnapshot> bins = []; // List of bins fetched from Firestore
-  DocumentSnapshot? selectedBin; // Currently selected bin
+  List<DocumentSnapshot> bins = [];
+  DocumentSnapshot? selectedBin;
 
   @override
   void initState() {
     super.initState();
-    _fetchBins(); // Fetch bins when the page loads
+    _fetchBins();
   }
 
-  // Fetch all bins from Firestore
   Future<void> _fetchBins() async {
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('bins').get();
+          await widget.firestore.collection('bins').get();
       setState(() {
         bins = querySnapshot.docs;
       });
@@ -38,23 +40,16 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
     }
   }
 
-  // Method to update bin details in Firestore
   Future<void> _updateBinDetails() async {
-    if (selectedBin == null) return; // Ensure a bin is selected
+    if (selectedBin == null) return;
 
-    // Get the current bin's availability before updating
     String currentAvailability = selectedBin!['availability'] as String;
-
-    // Get new availability percentage from the controller
     String newAvailability = availabilityController.text.trim();
 
-    // Check if the new availability includes '%' sign
     if (!newAvailability.endsWith('%')) {
-      // If not, append it to the new availability
       newAvailability += '%';
     }
 
-    // Validate the format (ensure it's a number before the '%' sign)
     String numericPart = newAvailability.replaceAll('%', '').trim();
     if (double.tryParse(numericPart) == null) {
       print(
@@ -65,25 +60,20 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
     }
 
     try {
-      // Update the bin details
-      await FirebaseFirestore.instance
-          .collection('bins')
-          .doc(selectedBin!.id)
-          .update({
-        'availability': newAvailability, // Store as string with '%'
+      await widget.firestore.collection('bins').doc(selectedBin!.id).update({
+        'availability': newAvailability,
       });
 
-      // Log the update in the binupdates collection
-      await FirebaseFirestore.instance.collection('binupdates').add({
+      await widget.firestore.collection('binupdates').add({
         'binId': selectedBin!.id,
-        'userId': uidController.text, // Include user ID
+        'userId': uidController.text,
         'binType': selectedBin!['binType'],
         'timestamp': FieldValue.serverTimestamp(),
         'previousAvailabilityPercentage': currentAvailability,
         'newAvailabilityPercentage': newAvailability,
       });
 
-      Navigator.of(context).pop(); // Return to the previous screen after update
+      Navigator.of(context).pop();
     } catch (e) {
       print('Error updating bin: $e');
       _showErrorDialog(
@@ -91,20 +81,18 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
     }
   }
 
-  // Populate text fields with the selected bin's data
   void _populateBinDetails(DocumentSnapshot bin) {
     setState(() {
-      selectedBin = bin; // Set the selected bin
+      selectedBin = bin;
       nameController.text = bin['name'] ?? '';
       binTypeController.text = bin['binType'] ?? '';
       binHeightController.text = bin['binHeight'] ?? '';
       addressController.text = bin['address'] ?? '';
       availabilityController.text = bin['availability'] ?? '';
-      uidController.text = bin['userId'] ?? ''; // Set user ID
+      uidController.text = bin['userId'] ?? '';
     });
   }
 
-  // Show error dialog for invalid input
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
@@ -127,31 +115,29 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
 
   @override
   Widget build(BuildContext context) {
+    // The build method remains the same
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select and Update Bin'),
-        backgroundColor: const Color(0xFF3E9140), // Custom color
+        backgroundColor: const Color(0xFF3E9140),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Dropdown to select a bin
             if (bins.isNotEmpty)
               DropdownButton<DocumentSnapshot>(
                 hint: const Text('Select a bin to update'),
                 value: selectedBin,
                 onChanged: (DocumentSnapshot? bin) {
                   if (bin != null) {
-                    _populateBinDetails(
-                        bin); // Populate form with selected bin's details
+                    _populateBinDetails(bin);
                   }
                 },
                 items: bins.map((bin) {
                   return DropdownMenuItem<DocumentSnapshot>(
                     value: bin,
-                    child: Text(bin['name'] ??
-                        'Unnamed Bin'), // Display the bin's name in the dropdown
+                    child: Text(bin['name'] ?? 'Unnamed Bin'),
                   );
                 }).toList(),
               ),
@@ -160,7 +146,7 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(labelText: 'Bin Label:'),
-                enabled: false, // Make field uneditable
+                enabled: false,
               ),
               const SizedBox(height: 20),
               TextField(
@@ -168,41 +154,40 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
                 decoration: const InputDecoration(
                     labelText:
                         'Bin Type (Plastic, Organic, Recyclable, Other):'),
-                enabled: false, // Make field uneditable
+                enabled: false,
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: binHeightController,
                 decoration:
                     const InputDecoration(labelText: 'Bin Height (cm):'),
-                enabled: false, // Make field uneditable
+                enabled: false,
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: addressController,
                 decoration: const InputDecoration(labelText: 'Address:'),
-                enabled: false, // Make field uneditable
+                enabled: false,
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: availabilityController,
                 decoration: const InputDecoration(
                     labelText: 'Availability Percentage (e.g., "20%") :'),
-                keyboardType: TextInputType.text, // Allow text input
+                keyboardType: TextInputType.text,
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: uidController,
                 decoration: const InputDecoration(labelText: 'User ID:'),
-                enabled: false, // Make field uneditable
+                enabled: false,
               ),
               const SizedBox(height: 40),
               Center(
                 child: ElevatedButton(
                   onPressed: _updateBinDetails,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFF3E9140), // Custom button color
+                    backgroundColor: const Color(0xFF3E9140),
                     foregroundColor: Colors.white,
                   ),
                   child: const Text('Update Bin'),
@@ -217,13 +202,12 @@ class _UpdateBinPageState extends State<UpdateBinPage> {
 
   @override
   void dispose() {
-    // Dispose controllers to avoid memory leaks
     nameController.dispose();
     binTypeController.dispose();
     binHeightController.dispose();
     addressController.dispose();
     availabilityController.dispose();
-    uidController.dispose(); // Dispose user ID controller
+    uidController.dispose();
     super.dispose();
   }
 }

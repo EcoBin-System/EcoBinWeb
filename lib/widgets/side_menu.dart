@@ -1,4 +1,6 @@
+import 'package:ecobin_app/pages/bin_qr.dart';
 import 'package:ecobin_app/pages/goals.dart';
+import 'package:ecobin_app/pages/viewtasks.dart';
 import 'package:ecobin_app/pages/pickup_records.dart';
 import 'package:ecobin_app/user_management/screens/home/profile.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:ecobin_app/pages/monitor_bin.dart';
 import 'package:ecobin_app/pages/notification.dart';
 import 'package:ecobin_app/services/notification_service.dart';
 import 'package:ecobin_app/user_management/services/auth.dart';
+import 'package:ecobin_app/user_management/screens/home/home.dart'; // Import your home page
 
 class SideMenu extends StatefulWidget {
   @override
@@ -27,7 +30,7 @@ class _SideMenuState extends State<SideMenu> {
         children: [
           // Collapse/Expand button
           IconButton(
-            icon: Icon(isCollapsed ? Icons.arrow_right : Icons.arrow_left),
+            icon: Icon(isCollapsed ? Icons.close : Icons.menu),
             onPressed: () {
               setState(() {
                 isCollapsed = !isCollapsed; // Toggle collapsed state
@@ -47,8 +50,20 @@ class _SideMenuState extends State<SideMenu> {
                     ),
                   ),
           ),
+
           ListTile(
-            leading: Icon(Icons.monitor), // Icon for Monitoring
+            leading: Icon(Icons.local_shipping),
+            title: isCollapsed ? null : const Text('Pickups'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => UserPickupRequestsPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.monitor),
             title: isCollapsed ? null : const Text('Monitoring'),
             onTap: () {
               Navigator.push(
@@ -58,7 +73,7 @@ class _SideMenuState extends State<SideMenu> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.notifications), // Icon for Alerts
+            leading: Icon(Icons.notifications),
             title: isCollapsed ? null : const Text('Alerts'),
             onTap: () {
               Navigator.push(
@@ -72,28 +87,27 @@ class _SideMenuState extends State<SideMenu> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.local_shipping), // Icon for Pickups
-            title: isCollapsed ? null : const Text('Pickups'),
+            leading: Icon(Icons.qr_code),
+            title: isCollapsed ? null : const Text('Scan QR Code'),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => UserPickupRequestsPage()),
+                MaterialPageRoute(builder: (context) => BinQr()),
               );
             },
           ),
           ListTile(
-            leading: Icon(Icons.flag), // Icon for Goals
-            title: isCollapsed ? null : const Text('Goals'),
+            leading: Icon(Icons.flag),
+            title: isCollapsed ? null : const Text('Tasks'),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Goals()),
+                MaterialPageRoute(builder: (context) => TaskListPage()),
               );
             },
           ),
           ListTile(
-            leading: Icon(Icons.person), // Icon for Profile
+            leading: Icon(Icons.person),
             title: isCollapsed ? null : const Text('Profile'),
             onTap: () {
               Navigator.push(
@@ -102,13 +116,14 @@ class _SideMenuState extends State<SideMenu> {
               );
             },
           ),
-          const Spacer(), // This creates space between the menu items and the logout button
+          const Spacer(),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green[100],
+              elevation: 0, // Remove shadow
             ),
             onPressed: () async {
-              await _auth.signOut(); // Use the instantiated _auth
+              await _auth.signOut();
             },
             child: const Icon(Icons.logout),
           ),
